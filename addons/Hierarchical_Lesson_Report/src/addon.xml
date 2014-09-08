@@ -14,5 +14,6 @@
         <property name='total' displayName="Show Total" type='boolean' />
         <property name="totalLabel" displayName="Total Label" type="string" isLocalized="true" />
         <property name="expandDepth" displayName="Depth of expand" type="string" />
+        <property name="classes" displayName="Row classes" type="text" />
 	</model>
 </addon>
