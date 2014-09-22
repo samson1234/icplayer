@@ -14,14 +14,10 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 	private ImageModule module;
 	private Image image;
 	
-	
 	public ImageView(ImageModule module, boolean isPreview) {
-	
 		this.module = module;
-
 		createUI(isPreview);
 	}
-
 
 	private void createUI(boolean isPreview) {
 		
@@ -30,7 +26,7 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 		StyleUtils.applyInlineStyle(this, module);
 		String imageUrl = module.getUrl();
 		add(image);
-		if(imageUrl.length() > 0){
+		if (imageUrl.length() > 0) {
 			image.addLoadHandler(new LoadHandler() {
 				
 				@Override
@@ -42,7 +38,7 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 		}
 		
 		setImageSize();
-		if(!isPreview){
+		if (!isPreview) {
 			setVisible(module.isVisible());
 		}
 		getElement().setId(module.getId());
@@ -50,31 +46,26 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 
 	
 	private void setImageSize() {
-
-		if(module.getDisplayMode() == DisplayMode.stretch){
+		if (module.getDisplayMode() == DisplayMode.stretch) {
 			image.setPixelSize(module.getWidth(), module.getHeight());
-		}
-		else if(module.getDisplayMode() == DisplayMode.keepAspect){
+		} else if(module.getDisplayMode() == DisplayMode.keepAspect) {
 			keepAspect(module.getWidth(), module.getHeight());
-		}
-		else if(module.getDisplayMode() == DisplayMode.originalSize){
+		} else if(module.getDisplayMode() == DisplayMode.originalSize) {
 			image.setVisibleRect(0, 0, module.getWidth(), module.getHeight());
 		}
 	}
 
-	
 	private void keepAspect(int width, int height) {
 		
-		if(image.getWidth() > 0 && image.getHeight() > 0){
+		if (image.getWidth() > 0 && image.getHeight() > 0) {
 		
 			float aspectX = width/(float)image.getWidth();
 			float aspectY = height/(float)image.getHeight();
 	
-			if(aspectX < aspectY){
+			if (aspectX < aspectY) {
 				int newHeight = (int) (image.getHeight()*aspectX);
 				image.setPixelSize(width, newHeight);
-			}
-			else{
+			} else {
 				int newWidth = (int) (image.getWidth()*aspectY);
 				image.setPixelSize(newWidth, height);
 			}
@@ -85,7 +76,6 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 
 
 	private void center() {
-
 		int left = (getOffsetWidth()-image.getWidth())/2;
 		int top = (getOffsetHeight()-image.getHeight())/2;
 		setWidgetPosition(image, left, top);
@@ -94,13 +84,11 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 
 	@Override
 	public void show() {
-
 		setVisible(true);
-		if(module.getDisplayMode() == DisplayMode.keepAspect){
+		if (module.getDisplayMode() == DisplayMode.keepAspect) {
 			center();
 		}
 	}
-
 
 	@Override
 	public void hide() {

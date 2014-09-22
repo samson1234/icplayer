@@ -30,7 +30,6 @@ public class ImageModule extends BasicModuleModel {
 	private String baseUrl = "";
 	private DisplayMode mode = DisplayMode.stretch;
 	
-	
 	public ImageModule() {
 		super(DictionaryWrapper.get("image_module"));
 		
@@ -39,34 +38,29 @@ public class ImageModule extends BasicModuleModel {
 	}
 
 	
-	public String getUrl(){
+	public String getUrl() {
 	
-		if(imagePath.isEmpty()){
+		if (imagePath.isEmpty()) {
 			return GWT.getModuleBaseURL() + "media/no_image.gif";
-			
-		}
-		else if(imagePath.startsWith("http") || imagePath.startsWith("/")){
+		} else if(imagePath.startsWith("http") || imagePath.startsWith("/")) {
 			return imagePath;
-		}
-		else{
+		} else {
 			return baseUrl + imagePath;
 		}
 	}
 
-
 	@Override
 	public void load(Element node, String baseUrl) {
-	
 		super.load(node, baseUrl);
 		
 		this.baseUrl = baseUrl;
 		NodeList nodes = node.getChildNodes();
-		for(int i = 0; i < nodes.getLength(); i++){
+		for (int i = 0; i < nodes.getLength(); i++) {
 			
 			Node childNode = nodes.item(i);
-			if(childNode instanceof Element){
+			if (childNode instanceof Element) {
 				
-				if(childNode.getNodeName().compareTo("image") == 0 && childNode instanceof Element){
+				if (childNode.getNodeName().compareTo("image") == 0 && childNode instanceof Element) {
 					Element childElement = (Element) childNode;
 					imagePath = StringUtils.unescapeXML(childElement.getAttribute("src"));
 					String modeName = childElement.getAttribute("mode");
@@ -76,22 +70,18 @@ public class ImageModule extends BasicModuleModel {
 		}
 	}
 	
-	
 	private void setModeFromString(String typeName) {
-		
-		if(typeName != null){
-			for(DisplayMode modeType : DisplayMode.values()){
-				if(modeType.toString().compareTo(typeName) == 0){
+		if (typeName != null) {
+			for (DisplayMode modeType : DisplayMode.values()) {
+				if (modeType.toString().compareTo(typeName) == 0) {
 					mode = modeType;
 				}
 			}
 		}
 	}	
 
-
 	@Override
 	public String toXML() {
-		
 		String xml = 
 				"<imageModule " + getBaseXML() + ">" + getLayoutXML() +
 				"<image src='" + StringUtils.escapeHTML(imagePath) + "' " +
@@ -100,7 +90,6 @@ public class ImageModule extends BasicModuleModel {
 		
 		return xml;
 	}
-	
 	
 	private void addPropertyImage() {
 

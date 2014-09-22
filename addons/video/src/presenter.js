@@ -65,9 +65,9 @@ function Addonvideo_create() {
     };
 
     presenter.videoTypes = [
-        	{ name : 'MP4 video', type : 'video/mp4'},
-        	{ name : 'Ogg video', type : 'video/ogg'},
-        	{ name : 'WebM video', type : 'video/webm'}
+        { name : 'MP4 video', type : 'video/mp4'},
+        { name : 'Ogg video', type : 'video/ogg'},
+        { name : 'WebM video', type : 'video/webm'}
     ];
 
     presenter.VIDEO_STATE = {
@@ -240,18 +240,16 @@ function Addonvideo_create() {
             }
             delete presenter.isHideExecuted;
         }, false);
-//        this.video.addEventListener('ended', function() {
-//            console.log('ended')
-//            console.log(presenter.isEnded)
-//            if (!presenter.isEnded) {
-//                presenter.sendVideoEndedEvent();
-//                if (presenter.configuration.isFullScreen) {
-//                    fullScreenChange();
-//                }
-//                presenter.isEnded = true;
-//                presenter.stop();
-//            }
-//        }, false);
+        this.video.addEventListener('ended', function() {
+            if (!presenter.isEnded) {
+                presenter.sendVideoEndedEvent();
+                if (presenter.configuration.isFullScreen) {
+                    fullScreenChange();
+                }
+                presenter.isEnded = true;
+                presenter.stop();
+            }
+        }, false);
     };
 
     presenter.convertTimeStringToNumber = function(timeString) {
@@ -358,6 +356,7 @@ function Addonvideo_create() {
         $(this.videoContainer).find('.captions').remove();
         this.setVideo();
         this.loadSubtitles();
+        // for Safari
         $(this.video).unbind('timeupdate');
         $(this.video).bind("timeupdate", function() {
             onTimeUpdate(this);
@@ -379,15 +378,36 @@ function Addonvideo_create() {
         }
     }
 
+    function removeEventListeners() {
+        $(presenter.video).off();
+//        presenter.video.removeEventListener("webkitfullscreenchange");
+//        presenter.video.removeEventListener("click");
+//        presenter.video.removeEventListener("error");
+//        presenter.video.removeEventListener("loadedmetadata");
+//        presenter.video.removeEventListener("pause");
+//        presenter.video.removeEventListener("ended");
+    }
+
+    function removeObject() {
+        presenter.video.pause();
+        delete(presenter);
+        $(presenter).remove();
+        presenter.$view.empty();
+    }
+
     presenter.getState = function() {
-        var isPaused = this.video.paused;
-        this.video.pause();
-        return JSON.stringify({
+        removeEventListeners();
+
+        var state = {
             currentTime : this.video.currentTime,
             isCurrentlyVisible : this.isCurrentlyVisible,
-            isPaused: isPaused,
+            isPaused: this.video.paused,
             currentMovie: this.currentMovie
-        });
+        };
+
+        removeObject();
+
+        return JSON.stringify(state);
     };
 
     presenter.setState = function(stateString) {

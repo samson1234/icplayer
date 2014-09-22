@@ -29,9 +29,7 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 	private JavaScriptObject	jsObject;
 	private boolean isVisible;
 	
-	
-	public ImagePresenter(ImageModule module, IPlayerServices services){
-
+	public ImagePresenter(ImageModule module, IPlayerServices services) {
 		this.module = module;
 		this.playerServices = services;
 		isVisible = module.isVisible();
@@ -39,9 +37,7 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 		connectHandlers();
 	}
 	
-	
 	private void connectHandlers() {
-		
 		EventBus eventBus = playerServices.getEventBus();
 		
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
@@ -51,45 +47,33 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 		});
 	}
 	
-	
 	protected void reset() {
-
 		isVisible = module.isVisible();
-		if(view != null){
-			if(module.isVisible()){
+		if (view != null) {
+			if (isVisible) {
 				view.show();
-			}
-			else{
+			} else {
 				view.hide();
 			}
 		}
 	}
 
-
 	@Override
 	public void addView(IModuleView display) {
-		
-		if(display instanceof IDisplay){
+		if (display instanceof IDisplay) {
 			this.view = (IDisplay) display;
 		}
 	}
-
 
 	@Override
 	public IModuleModel getModel() {
 		return module;
 	}
 	
-	public JavaScriptObject getAsJavaScript(){
-		
-		if(jsObject == null){
-			jsObject = initJSObject(this);
-		}
-
-		return jsObject;
+	public JavaScriptObject getAsJavaScript() {
+		return jsObject == null ? initJSObject(this) : jsObject;
 	}
 
-	
 	private native JavaScriptObject initJSObject(ImagePresenter x) /*-{
 	
 		var presenter = function(){}
@@ -112,38 +96,31 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 		return view.getElement();
 	}
 	
-	
-	private void show(){
-		
+	private void show() {
 		isVisible = true;
-		if(view != null){
+		if (view != null) {
 			view.show();
 		}
 	}
 	
-	
-	private void hide(){
-		
+	private void hide() {
 		isVisible = false;
-		if(view != null){
+		if (view != null) {
 			view.hide();
 		}
 	}
-
 
 	@Override
 	public String getName() {
 		return module.getId();
 	}
 
-
 	@Override
 	public String executeCommand(String commandName, List<IType> _) {
 		
-		if(commandName.compareTo("show") == 0){
+		if (commandName.compareTo("show") == 0) {
 			show();
-		}
-		else if(commandName.compareTo("hide") == 0){
+		} else if (commandName.compareTo("hide") == 0) {
 			hide();
 		}
 		
@@ -155,24 +132,23 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 		return module.getId();
 	}
 
-
 	@Override
 	public String getState() {
+//        this.audio.pause();
+//        delete(this);
+//        $(this).remove();
+//        presenter.$view.empty();
+		
 		return Boolean.toString(isVisible);
 	}
 
-
 	@Override
 	public void setState(String state) {
-		
-		isVisible = Boolean.parseBoolean(state);
-		if(!isVisible){
+		if (Boolean.parseBoolean(state)) {
+			view.show();
+		} else {
 			view.hide();
 		}
-		else{
-			view.show();
-		}
 	}
-
 
 }
