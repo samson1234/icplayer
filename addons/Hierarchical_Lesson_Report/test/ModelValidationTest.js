@@ -73,5 +73,23 @@ TestCase("Model Validation Test Case", {
 
         assertFalse(validationResult.isValid);
         assertEquals("C02", validationResult.errorCode);
+    },
+
+    'test classes with empty row': function() {
+        this.model["classes"] = "class\nanother_class\n\nnew_class dump";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertFalse(validationResult.isValid);
+        assertEquals("C01", validationResult.errorCode);
+    },
+
+    'test classes with empty last row': function() {
+        this.model["classes"] = "class\nanother_class\nnew_class dump\n";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertFalse(validationResult.isValid);
+        assertEquals("C02", validationResult.errorCode);
     }
 });

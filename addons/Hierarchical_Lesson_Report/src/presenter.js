@@ -212,13 +212,8 @@ function AddonHierarchical_Lesson_Report_create() {
             }
         } else {
             var c = presenter.configuration;
-            var columns = [c.showResults, c.showChecks, c.showMistakes, c.showErrors, c.showPageScore, c.showMaxScoreField].filter(function(a) { return a }).length - 1;
-
-            $("<td></td>").appendTo($(row)).addClass("hier_report-score-disabled-row").addClass("hier_report-score-disabled-row-cell-0");
-
-            for (var i=0; i<columns; i++) {
-                $("<td></td>").appendTo($(row)).addClass("hier_report-score-disabled-row").addClass("hier_report-score-disabled-row-cell-" + (i + 1));
-            }
+            var columns = [c.showResults, c.showChecks, c.showMistakes, c.showErrors, c.showPageScore, c.showMaxScoreField].filter(function(a) { return a }).length;
+            $("<td colspan='" + columns + "'></td>").appendTo($(row)).addClass("hier_report-score-disabled-row");
         }
 
     }
@@ -349,6 +344,7 @@ function AddonHierarchical_Lesson_Report_create() {
             }
            	chapterScore = updateScore(chapterScore, pageScore);
         }
+
         return { pagesScore: chapterScore, isEmpty: isEmpty };
     };
 
@@ -455,7 +451,7 @@ function AddonHierarchical_Lesson_Report_create() {
     }
 
     presenter.validateModel = function (model) {
-        var expandDepth = { value: 0, isValid: true };
+        var expandDepth = returnCorrectObject(0);
 
         if (model['expandDepth'].length > 0) {
             expandDepth = ModelValidationUtils.validateInteger(model['expandDepth']);
