@@ -44,6 +44,9 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 		getElement().setId(module.getId());
 	}
 
+	public void deleteUI() {
+		getElement().removeFromParent();
+	}
 	
 	private void setImageSize() {
 		if (module.getDisplayMode() == DisplayMode.stretch) {

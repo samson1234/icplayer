@@ -390,14 +390,12 @@ function Addonvideo_create() {
 
     function removeObject() {
         presenter.video.pause();
-        delete(presenter);
-        $(presenter).remove();
+        delete(presenter.video);
+        $(presenter.video).remove();
         presenter.$view.empty();
     }
 
     presenter.getState = function() {
-        removeEventListeners();
-
         var state = {
             currentTime : this.video.currentTime,
             isCurrentlyVisible : this.isCurrentlyVisible,
@@ -405,6 +403,7 @@ function Addonvideo_create() {
             currentMovie: this.currentMovie
         };
 
+        removeEventListeners();
         removeObject();
 
         return JSON.stringify(state);

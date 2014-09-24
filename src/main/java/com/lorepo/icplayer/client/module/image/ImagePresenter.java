@@ -14,7 +14,6 @@ import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
-
 public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 
 	public interface IDisplay extends IModuleView{
@@ -26,7 +25,7 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 	private IDisplay view;
 	private IPlayerServices playerServices;
 	private ImageModule module;
-	private JavaScriptObject	jsObject;
+	private JavaScriptObject jsObject;
 	private boolean isVisible;
 	
 	public ImagePresenter(ImageModule module, IPlayerServices services) {
@@ -138,8 +137,11 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 //        delete(this);
 //        $(this).remove();
 //        presenter.$view.empty();
+		Boolean is_Visible = isVisible;
 		
-		return Boolean.toString(isVisible);
+		view = null;
+		
+		return Boolean.toString(is_Visible);
 	}
 
 	@Override

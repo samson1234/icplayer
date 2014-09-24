@@ -11,7 +11,6 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-
 /**
  * Obrazek
  * 
@@ -56,7 +55,6 @@ public class ImageModule extends BasicModuleModel {
 		this.baseUrl = baseUrl;
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
-			
 			Node childNode = nodes.item(i);
 			if (childNode instanceof Element) {
 				
@@ -120,7 +118,6 @@ public class ImageModule extends BasicModuleModel {
 		addProperty(property);
 	}
 
-	
 	private void addPropertyMode() {
 
 		IProperty property = new IEnumSetProperty() {
@@ -160,7 +157,6 @@ public class ImageModule extends BasicModuleModel {
 		addProperty(property);
 	}
 
-	
 	public DisplayMode getDisplayMode(){
 		return mode;
 	}

@@ -518,15 +518,13 @@ function AddonAudio_create(){
     function removeObject() {
         presenter.pause();
         delete(presenter.audio);
-        $(presenter).remove();
+        $(presenter.audio).remove();
         presenter.$view.empty();
     }
 
     presenter.getState = function() {
         removeEventListeners();
         removeObject();
-
-        console.log("removed audio");
 
         return JSON.stringify({
             isVisible : presenter.configuration.isVisible
