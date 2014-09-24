@@ -137,11 +137,11 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 //        delete(this);
 //        $(this).remove();
 //        presenter.$view.empty();
-		Boolean is_Visible = isVisible;
+//		Boolean is_Visible = isVisible;
+//		
+//		view = null;
 		
-		view = null;
-		
-		return Boolean.toString(is_Visible);
+		return Boolean.toString(isVisible);
 	}
 
 	@Override
