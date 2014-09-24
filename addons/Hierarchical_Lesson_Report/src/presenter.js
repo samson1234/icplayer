@@ -5,13 +5,16 @@ function AddonHierarchical_Lesson_Report_create() {
     var totalChecks = 0;
     var totalErrors = 0;
     var totalMistakes = 0;
+    var totalPoints = 0;
+    var totalMaxScore = 0;
+
     var isPreview = false;
 
     presenter.ERROR_MESSAGES = {
         EXPAND_DEPTH_NOT_NUMERIC: "Depth of expand is not proper",
 
         C01: "Wrong classes name format",
-        C02: "Class names has to be in every new line", // TODO poprawic ten tekst
+        C02: "Class names has to be separated by new line",
 
         D01: "Values in Disable score on pages property should be numeric and non empty",
         D02: "Values in Disable score on pages property should be "
@@ -56,9 +59,8 @@ function AddonHierarchical_Lesson_Report_create() {
         if (presenter.configuration.showMistakes) headerHTML += "<td class='hier_report-mistakes'> " + presenter.configuration.mistakesLabel + "</td>";
         if (presenter.configuration.showErrors) headerHTML += "<td class='hier_report-errors'> " + presenter.configuration.errorsLabel + "</td>";
         if (presenter.configuration.showPageScore) headerHTML += "<td class='hier_report-page-score'> </td>";
-        if (presenter.configuration.showMaxScoreField) headerHTML += "<td class='hier_report-page-max-score'> </td>";
-        var row = document.createElement('tr');
-        $(row).prependTo($("#" + presenter.treeID).find('table')).addClass("hier_report-header").html(headerHTML);
+        if (presenter.configuration.showMaxScoreField) headerHTML += "<td class='hier_report-page-non-max-score'> </td>";
+        $("<tr></tr>").prependTo($("#" + presenter.treeID).find('table')).addClass("hier_report-header").html(headerHTML);
     }
 
     function addFooter() {
@@ -85,32 +87,25 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         if (presenter.configuration.showChecks) {
-            var checksCell = document.createElement('td');
-            $(checksCell).appendTo($(row))
-                .addClass("hier_report-checks")
-                .html(totalChecks);
+            $("<td></td>").appendTo($(row)).addClass("hier_report-checks").html(totalChecks);
         }
 
         if (presenter.configuration.showMistakes) {
-            var mistakesCell = document.createElement('td');
-            $(mistakesCell).appendTo($(row))
-                .addClass("hier_report-mistakes")
-                .html(totalMistakes);
+            $("<td></td>").appendTo($(row)).addClass("hier_report-mistakes").html(totalMistakes);
         }
 
         if (presenter.configuration.showErrors) {
-            var errorsCell = document.createElement('td');
-            $(errorsCell).appendTo($(row))
-                .addClass("hier_report-errors")
-                .html((totalErrors));
+            $("<td></td>").appendTo($(row)).addClass("hier_report-errors").html(totalErrors);
         }
 
         if (presenter.configuration.showPageScore) {
-            $("<td></td>").appendTo($(row)).addClass("hier_report-page-score");
+            var content = totalPoints + "<span class='hier_report-separator'>/</span>" + totalMaxScore;
+            $("<td></td>").appendTo($(row)).addClass("hier_report-page-score").html(content);
         }
 
         if (presenter.configuration.showMaxScoreField) {
-            $("<td></td>").appendTo($(row)).addClass("hier_report-errors");
+            var className = (totalScore === totalMaxScore ? "page-max-score" : "page-non-max-score");
+            $("<td></td>").appendTo($(row)).addClass("hier_report-" + className);
         }
     }
 
@@ -146,9 +141,7 @@ function AddonHierarchical_Lesson_Report_create() {
         var percent = Math.floor(score.score / score.count * 100);
 
         var progressInfo = document.createElement('div');
-        $(progressInfo).appendTo($(progressCell))
-            .attr("style", "float: right")
-            .html(percent + "%");
+        $(progressInfo).appendTo($(progressCell)).attr("style", "float: right").html(percent + "%");
 
         if (!isChapter) {
             $(progressbar).progressbar({
@@ -200,10 +193,11 @@ function AddonHierarchical_Lesson_Report_create() {
             }
 
             if (presenter.configuration.showPageScore) {
-                var pageScoreCell = document.createElement('td');
-                $(pageScoreCell).appendTo($(row))
+                $("<td></td>").appendTo($(row))
                     .addClass("hier_report-page-score")
                     .html(points + "<span class='hier_report-separator'>/</span>" + score.maxScore);
+                totalPoints += points;
+                totalMaxScore += score.maxScore;
             }
 
             if (presenter.configuration.showMaxScoreField) {
@@ -220,14 +214,9 @@ function AddonHierarchical_Lesson_Report_create() {
 
     function generatePageLinks(text, isChapter, pageId) {
         var $element = $(document.createElement('td')),
-            $link = $(document.createElement('a'))
-                .text(text)
-                .attr('href', '#')
-                .attr('data-page-id', pageId);
-        
-        var wrapper = $('<div class="text-wrapper">');
-        wrapper.html(isChapter ? text : $link);
-        $element.append(wrapper);
+            $link = $("<a></a>").text(text).attr('href', '#').attr('data-page-id', pageId);
+
+        $element.append($('<div class="text-wrapper">').html(isChapter ? text : $link));
 
         return $element;
     }
