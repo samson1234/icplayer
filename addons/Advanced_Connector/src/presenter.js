@@ -271,5 +271,17 @@ function AddonAdvanced_Connector_create() {
         return filledEventData;
     };
 
+    function removeEventListeners() { }
+
+    function removeObject() {
+        delete($(presenter.view)[0]);
+        $(presenter.view).remove();
+    }
+
+    presenter.releaseMemory = function() {
+        removeEventListeners();
+        removeObject();
+    };
+
     return presenter;
 }

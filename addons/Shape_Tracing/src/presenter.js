@@ -909,11 +909,9 @@ function AddonShape_Tracing_create() {
     };
 
     presenter.getState = function() {
-        if (!presenter.data.isStarted) {
-            return;
-        }
+        if (!presenter.data.isStarted) { return; }
 
-        return JSON.stringify({
+        var state = {
             imgData: presenter.$view.find(".drawing")[0].toDataURL("image/png"),
             isPencilActive: presenter.data.isPencilActive,
             color: presenter.configuration.color,
@@ -923,13 +921,13 @@ function AddonShape_Tracing_create() {
             numberOfDescentsFromShape: presenter.data.numberOfDescentsFromShape,
             isAllPointsChecked: presenter.data.isAllPointsChecked,
             pointsArray: presenter.pointsArray
-        });
+        };
+
+        return JSON.stringify(state);
     };
 
     presenter.setState = function(state) {
-        if (ModelValidationUtils.isStringEmpty(state)) {
-            return;
-        }
+        if (ModelValidationUtils.isStringEmpty(state)) { return; }
 
         presenter.data.isStarted = true; // state is non empty => exercise is started
         presenter.data.currentPointNumber = JSON.parse(state).currentPointNumber;
@@ -952,6 +950,21 @@ function AddonShape_Tracing_create() {
 
     presenter.isAllOk = function() {
         return presenter.data.isAllOk;
+    };
+
+    function removeEventListeners() {
+        presenter.$view.find(".drawing").off();
+    }
+
+    function removeObject() {
+        delete(presenter.$view.find(".drawing")[0]);
+        presenter.$view.find(".drawing").remove();
+        presenter.$view.empty();
+    }
+
+    presenter.releaseMemory = function() {
+        removeEventListeners();
+        removeObject();
     };
 
     return presenter;

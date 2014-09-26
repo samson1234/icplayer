@@ -415,4 +415,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		return view.isAttempted();
 	}
 
+	@Override
+	public void releaseMemory() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

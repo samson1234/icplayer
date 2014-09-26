@@ -111,8 +111,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  	}		
 	}-*/;
 	
-	
-	
 	public void startAddon() {
 		
 		if(addonDescriptor != null){
@@ -191,11 +189,25 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return 0;
 	}-*/;
 	
+	@Override
+	public void releaseMemory() {
+		releaseMemoryArgs(jsObject, addonDescriptor.getAddonId());
+	}
+	
+	private native void releaseMemoryArgs(JavaScriptObject obj, String addonId) /*-{
+		try {
+			if (obj.releaseMemory != undefined) {
+				obj.releaseMemory();
+			}
+		} catch(err) {
+	  		alert("[" + addonId + "] Exception in releaseMemory(): \n" + err);
+	  	}		
+	}-*/;
 	
 	public void run() {
 		jsObject = initJavaScript("Addon" + model.getAddonId() + "_create");
 
-		if(jsObject != null){
+		if (jsObject != null) {
 			JavaScriptObject jsModel = createModel(model);
 			setPlayerController(jsObject, services.getAsJSObject());
 			run(jsObject, view.getElement(), jsModel, model.getAddonId());
@@ -241,11 +253,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		addPropertyToJSArray(jsModel, property.getName(), value);
 	}
 	
-	
 	private native void addPropertyToJSArray(JavaScriptObject model, String name, String value)  /*-{
 		model[name] = value;
 	}-*/; 
-
 
 	private native void addPropertyToJSArray(JavaScriptObject model, String name, JavaScriptObject obj)  /*-{
 		model[name] = obj;
@@ -254,8 +264,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private native void addToJSArray(JavaScriptObject model, JavaScriptObject obj)  /*-{
 		model.push(obj);
 	}-*/; 
-
-
 
 	private native JavaScriptObject initJavaScript(String name) /*-{
 		if($wnd.window[name] == null){
@@ -276,21 +284,18 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	
 	private native void run(JavaScriptObject obj, Element element, JavaScriptObject model, String addonId ) /*-{
 
-		try{
+		try {
 			obj.getView = function(){return element};
 			obj.run(element, model);
-		}
-		catch(err){
+		} catch(err) {
   			console.log("Can't load addon: " + addonId + "\n" + err);
   		}		
 	}-*/;
-
 
 	@Override
 	public String getSerialId() {
 		return model.getId();
 	}
-
 
 	@Override
 	public String getState() {
@@ -327,7 +332,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  	}
 	}-*/;
 
-
 	private native String executeCommand(JavaScriptObject obj, String name, List<String> params) /*-{
 	
 		if(obj.executeCommand != undefined){
@@ -340,12 +344,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 	}-*/;
 
-
 	@Override
 	public String getName() {
 		return model.getId();
 	}
-
 
 	@Override
 	public String executeCommand(String commandName, List<IType> params) {
@@ -357,13 +359,11 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return executeCommand(jsObject, commandName, values);
 	}
 
-
 	@Override
 	public IModuleModel getModel() {
 		return model;
 	}
 
-	
 	public JavaScriptObject getJavaScriptObject(){
 		return jsObject;
 	}

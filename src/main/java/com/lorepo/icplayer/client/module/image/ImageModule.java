@@ -11,15 +11,9 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
-/**
- * Obrazek
- * 
- * @author Krzysztof Langner
- *
- */
 public class ImageModule extends BasicModuleModel {
 
-	public enum DisplayMode{
+	public enum DisplayMode {
 		stretch,
 		keepAspect,
 		originalSize
@@ -36,9 +30,7 @@ public class ImageModule extends BasicModuleModel {
 		addPropertyMode();
 	}
 
-	
 	public String getUrl() {
-	
 		if (imagePath.isEmpty()) {
 			return GWT.getModuleBaseURL() + "media/no_image.gif";
 		} else if(imagePath.startsWith("http") || imagePath.startsWith("/")) {
@@ -80,13 +72,10 @@ public class ImageModule extends BasicModuleModel {
 
 	@Override
 	public String toXML() {
-		String xml = 
-				"<imageModule " + getBaseXML() + ">" + getLayoutXML() +
+		return "<imageModule " + getBaseXML() + ">" + getLayoutXML() +
 				"<image src='" + StringUtils.escapeHTML(imagePath) + "' " +
 				"mode='"+ mode.toString() + "'/>" +
 				"</imageModule>";
-		
-		return xml;
 	}
 	
 	private void addPropertyImage() {

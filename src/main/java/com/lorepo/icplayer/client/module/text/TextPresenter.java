@@ -910,4 +910,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		return getScore() == getMaxScore() && getErrorCount() == 0;
 	}
 
+	@Override
+	public void releaseMemory() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

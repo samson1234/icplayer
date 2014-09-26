@@ -11,11 +11,11 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.page.PageView;
 import com.lorepo.icplayer.client.utils.widget.WaitDialog;
-import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 
 
 public class PlayerView extends VerticalPanel{
@@ -107,11 +107,11 @@ public class PlayerView extends VerticalPanel{
 			event.preventDefault();
 		}
 		if ( Event.ONKEYDOWN == eventType) {
-        if (event.getKeyCode() == KeyCodes.KEY_ESCAPE) {
-        	toggleNavigationPanels();
-			event.stopPropagation();
-			event.preventDefault();
-        }
+	        if (event.getKeyCode() == KeyCodes.KEY_ESCAPE) {
+	        	toggleNavigationPanels();
+				event.stopPropagation();
+				event.preventDefault();
+	        }
 		}
 		
 	}

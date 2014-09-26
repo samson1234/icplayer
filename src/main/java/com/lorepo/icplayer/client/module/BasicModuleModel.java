@@ -1,6 +1,5 @@
 package com.lorepo.icplayer.client.module;
 
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -58,7 +57,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	
 	@Override
 	public void release() {
-		RootPanel.get(id).removeFromParent();
+
 	}
 	
 	/**

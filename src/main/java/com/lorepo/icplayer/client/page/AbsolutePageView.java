@@ -14,7 +14,6 @@ import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-
 /**
  * This is X,Y laytout
  * 
@@ -105,7 +104,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		} else if (property == Property.right) {
 			return isNull ? pageWidth + modulePos : widget.getAbsoluteLeft() + widget.getOffsetWidth() - getAbsoluteLeft() + modulePos;
 		} else if (property == Property.top) {
-			return isNull ? modulePos : widget.getAbsoluteTop()-getAbsoluteTop()+modulePos;
+			return isNull ? modulePos : widget.getAbsoluteTop() - getAbsoluteTop() + modulePos;
 		} else if (property == Property.bottom) {
 			return isNull ? pageHeight + modulePos : widget.getAbsoluteTop() + widget.getOffsetHeight() - getAbsoluteTop() + modulePos;
 		}

@@ -98,4 +98,11 @@ public class ReportPresenter implements IPresenter{
 	public IModuleModel getModel() {
 		return module;
 	}
+
+
+	@Override
+	public void releaseMemory() {
+		// TODO Auto-generated method stub
+		
+	}
 }

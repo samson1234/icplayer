@@ -116,7 +116,7 @@ function AddonAudio_create(){
         if (volume_btn.hasClass(volume_class)) {
             return;
         }
-        for (i=0; i<=3; i++) {
+        for (var i=0; i<=3; i++) {
             if (volume_btn.hasClass('audio-volume'+i)) {
                 volume_btn.removeClass('audio-volume'+i);
             }
@@ -179,8 +179,7 @@ function AddonAudio_create(){
                 bar = progress_bar.find('.audio-bar'),
                 duration = presenter.audio.duration;
             duration = isNaN(duration) ? 0 : duration;
-            var currentTime = duration * bar.width() / progress_bar.width();
-            presenter.audio.currentTime = currentTime;
+            presenter.audio.currentTime = duration * bar.width() / progress_bar.width();
             presenter.mouseData.isMouseDragged = false;
             presenter.mouseData.oldPosition = 0;
             if (presenter.mouseData.playedBeforeDragging) {
@@ -256,7 +255,7 @@ function AddonAudio_create(){
         presenter.$view.find('.player-time').toggle();
     }
 
-    function createHtmlPlayer(view) {
+    function createHtmlPlayer() {
         var audioWrapper = presenter.$view.find(".wrapper-addon-audio");
         var customplayer = $('<div>');
         customplayer.addClass('audioplayer');
@@ -500,32 +499,7 @@ function AddonAudio_create(){
         }
     };
 
-    function removeEventListeners() {
-        $(presenter.audio).off();
-//        presenter.audio.removeEventListener("MSPointerDown");
-//        presenter.audio.removeEventListener("MSPointerUp");
-//        presenter.audio.removeEventListener("MSPointerMove");
-//        presenter.audio.removeEventListener("mousedown");
-//        presenter.audio.removeEventListener("mouseup");
-//        presenter.audio.removeEventListener("mousemove");
-//        presenter.audio.removeEventListener("loadeddata");
-//        presenter.audio.removeEventListener("timeupdate");
-//        presenter.audio.removeEventListener("volumechange");
-//        presenter.audio.removeEventListener("ended");
-//        presenter.audio.removeEventListener("click");
-    }
-
-    function removeObject() {
-        presenter.pause();
-        delete(presenter.audio);
-        $(presenter.audio).remove();
-        presenter.$view.empty();
-    }
-
     presenter.getState = function() {
-        removeEventListeners();
-        removeObject();
-
         return JSON.stringify({
             isVisible : presenter.configuration.isVisible
         });
@@ -549,6 +523,25 @@ function AddonAudio_create(){
         if (presenter.configuration.onEndEventCode) {
             presenter.playerController.getCommands().executeEventCode(presenter.configuration.onEndEventCode);
         }
+    };
+
+    function removeEventListeners() {
+        $(presenter.audio).off();
+    }
+
+    function removeObject() {
+        try {
+            presenter.pause();
+        } catch(e) { }
+
+        delete(presenter.audio);
+        $(presenter.audio).remove();
+        presenter.$view.empty();
+    }
+
+    presenter.releaseMemory = function() {
+        removeEventListeners();
+        removeObject();
     };
 
     return presenter;

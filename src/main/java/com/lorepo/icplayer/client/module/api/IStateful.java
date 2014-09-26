@@ -5,4 +5,5 @@ public interface IStateful {
 	public String getSerialId();	
 	public String getState();
 	public void setState(String state);
+	public void releaseMemory();
 }

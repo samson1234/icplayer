@@ -8,7 +8,6 @@ import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.image.ImageModule.DisplayMode;
 import com.lorepo.icplayer.client.module.image.ImagePresenter.IDisplay;
 
-
 public class ImageView extends AbsolutePanel implements IDisplay {
 
 	private ImageModule module;
@@ -43,10 +42,6 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 		}
 		getElement().setId(module.getId());
 	}
-
-	public void deleteUI() {
-		getElement().removeFromParent();
-	}
 	
 	private void setImageSize() {
 		if (module.getDisplayMode() == DisplayMode.stretch) {
@@ -62,14 +57,14 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 		
 		if (image.getWidth() > 0 && image.getHeight() > 0) {
 		
-			float aspectX = width/(float)image.getWidth();
-			float aspectY = height/(float)image.getHeight();
+			float aspectX = width / (float)image.getWidth();
+			float aspectY = height / (float)image.getHeight();
 	
 			if (aspectX < aspectY) {
-				int newHeight = (int) (image.getHeight()*aspectX);
+				int newHeight = (int) (image.getHeight() * aspectX);
 				image.setPixelSize(width, newHeight);
 			} else {
-				int newWidth = (int) (image.getWidth()*aspectY);
+				int newWidth = (int) (image.getWidth() * aspectY);
 				image.setPixelSize(newWidth, height);
 			}
 			
@@ -77,13 +72,11 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 		}
 	}
 
-
 	private void center() {
-		int left = (getOffsetWidth()-image.getWidth())/2;
-		int top = (getOffsetHeight()-image.getHeight())/2;
+		int left = (getOffsetWidth() - image.getWidth()) / 2;
+		int top = (getOffsetHeight() - image.getHeight()) / 2;
 		setWidgetPosition(image, left, top);
 	}
-
 
 	@Override
 	public void show() {

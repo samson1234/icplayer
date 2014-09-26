@@ -22,18 +22,16 @@ public class PlayerApp{
 
 	/** Div id */
 	private String divId;
-	private	Content				contentModel;
-	private PlayerController	playerController;
+	private	Content contentModel;
+	private PlayerController playerController;
 	/** Score service impl */
-	private PlayerEntryPoint	entryPoint;
+	private PlayerEntryPoint entryPoint;
 	private int startPageIndex = 0;
 	private HashMap<String, String> loadedState;
 	private boolean bookMode = false;
 	private boolean showCover = false;
 	private String analyticsId = null;
 	private ArrayList<Integer> pagesSubset = null;
-	private IPlayerServices playerServices;
-	
 	
 	public PlayerApp(String id, PlayerEntryPoint entryPoint){
 		
@@ -41,7 +39,6 @@ public class PlayerApp{
 		this.entryPoint = entryPoint;
 	 }
 
-	
 	/**
 	 * Get global score service
 	 * @return
@@ -137,12 +134,10 @@ public class PlayerApp{
 		playerController.switchToPage(startPageIndex);
 	}
 
-
 	public IPlayerServices getPlayerServices() {
 		return playerController.getPlayerServices();
 	}
 	
-
 	public void setState(String state) {
 		HashMap<String, String> data = JSONUtils.decodeHashMap(state);
 		if(data.containsKey("state") && data.containsKey("score")){

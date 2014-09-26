@@ -186,7 +186,6 @@ public class PageController {
 		playerService.getEventBus().fireEvent(new ResetPageEvent());
 	}
 
-	
 	public PageScore getPageScore() {
 		if (currentPage == null || !currentPage.isReportable()) {
 			return null;
@@ -252,10 +251,16 @@ public class PageController {
 			playerServiceImpl.resetEventBus();
 		}
 		if (currentPage != null) {
-			currentPage.release();
+			currentPage.release();			
 			currentPage = null;
 		}
 		pageView.removeAllModules();
+		
+		for (IPresenter presenter : presenters) {
+			if (presenter instanceof IStateful) {
+				presenter.releaseMemory();
+			}
+		}
 	}
 
 	public IPlayerServices getPlayerServices() {

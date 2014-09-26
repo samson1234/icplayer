@@ -14,9 +14,9 @@ import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
-public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
+public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful {
 
-	public interface IDisplay extends IModuleView{
+	public interface IDisplay extends IModuleView {
 		public void show();
 		public void hide();
 		public Element getElement();
@@ -47,9 +47,8 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 	}
 	
 	protected void reset() {
-		isVisible = module.isVisible();
 		if (view != null) {
-			if (isVisible) {
+			if (module.isVisible()) {
 				view.show();
 			} else {
 				view.hide();
@@ -75,7 +74,7 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 
 	private native JavaScriptObject initJSObject(ImagePresenter x) /*-{
 	
-		var presenter = function(){}
+		var presenter = function(){};
 			
 		presenter.show = function(){ 
 			x.@com.lorepo.icplayer.client.module.image.ImagePresenter::show()();
@@ -91,7 +90,7 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 		return presenter;
 	}-*/;
 	
-	private Element getView(){
+	private Element getView() {
 		return view.getElement();
 	}
 	
@@ -133,14 +132,6 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 
 	@Override
 	public String getState() {
-//        this.audio.pause();
-//        delete(this);
-//        $(this).remove();
-//        presenter.$view.empty();
-//		Boolean is_Visible = isVisible;
-//		
-//		view = null;
-		
 		return Boolean.toString(isVisible);
 	}
 
@@ -151,6 +142,12 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 		} else {
 			view.hide();
 		}
+	}
+
+	@Override
+	public void releaseMemory() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

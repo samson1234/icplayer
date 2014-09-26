@@ -202,4 +202,10 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 	private Element getView() {
 		return view.getElement();
 	}
+
+	@Override
+	public void releaseMemory() {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -620,4 +620,11 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		
 		return false;
 	}
+
+
+	@Override
+	public void releaseMemory() {
+		// TODO Auto-generated method stub
+		
+	}
 }

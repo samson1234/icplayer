@@ -14,10 +14,10 @@ function AddonDrawing_create() {
             val = 1;
         }
 
-        val = parseInt(val, 10);
-        if (val == NaN || val == undefined) {
-                val = 1;
-            }
+        if (isNaN(parseInt(val, 10))) {
+            return 1;
+        }
+
         return val;
     }
 
@@ -94,7 +94,7 @@ function AddonDrawing_create() {
         presenter.mouse.x = x;
         presenter.mouse.y = y;
         presenter.onPaint(e);
-    }
+    };
 
     presenter.onPaint = function(e) {
         var tmp_canvas, tmp_ctx;
@@ -526,16 +526,15 @@ function AddonDrawing_create() {
     };
 
     presenter.getState = function() {
-        if (!presenter.isStarted) {
-            return;
-        }
+        if (!presenter.isStarted) { return; }
 
         var isPencil = presenter.configuration.isPencil,
             color = presenter.configuration.color,
             pencilThickness = presenter.configuration.pencilThickness,
             eraserThickness = presenter.configuration.eraserThickness,
             c = presenter.$view.find("canvas")[0],
-            data = c.toDataURL("image/png");
+            data = c.toDataURL("image/png"),
+            isVisible = presenter.configuration.isVisible;
 
         return JSON.stringify({
             isPencil: isPencil,
@@ -543,7 +542,7 @@ function AddonDrawing_create() {
             pencilThickness: pencilThickness,
             eraserThickness: eraserThickness,
             data: data,
-            isVisible: presenter.configuration.isVisible
+            isVisible: isVisible
         });
     };
 
@@ -574,6 +573,26 @@ function AddonDrawing_create() {
             presenter.configuration.thickness = presenter.configuration.eraserThickness;
             presenter.configuration.color = "rgba(0, 0, 0, 1)";
         }
+    };
+
+    function removeEventListeners() {
+        $(presenter.configuration.canvas).off();
+        $(presenter.configuration.tmp_canvas).off();
+    }
+
+    function removeObject() {
+        delete(presenter.configuration.canvas[0]);
+        delete(presenter.configuration.tmp_canvas[0]);
+
+        presenter.configuration.canvas.remove();
+        presenter.configuration.tmp_canvas.remove();
+
+        presenter.$view.empty();
+    }
+
+    presenter.releaseMemory = function() {
+        removeEventListeners();
+        removeObject();
     };
 
     return presenter;

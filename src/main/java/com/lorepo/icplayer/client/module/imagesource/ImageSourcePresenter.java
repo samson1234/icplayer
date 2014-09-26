@@ -224,5 +224,12 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		
 		return "";
 	}
+
+
+	@Override
+	public void releaseMemory() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

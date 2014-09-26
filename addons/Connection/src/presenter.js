@@ -38,7 +38,6 @@ function AddonConnection_create() {
         RIGHT: 1
     };
 
-
     presenter.upgradeModel = function (model) {
         return presenter.upgradeFrom_01(model);
     };
@@ -781,6 +780,7 @@ function AddonConnection_create() {
         for (var i = 0; i < presenter.lineStack.ids.length; i++) {
             id.push(presenter.lineStack.ids[i].join(':'))
         }
+
         return JSON.stringify(id);
     };
 
@@ -966,6 +966,20 @@ function AddonConnection_create() {
         redraw();
         presenter.isShowAnswersActive = false;
         isSelectionPossible = true;
+    };
+
+    function removeEventListeners() {
+        $(presenter.view).find('.connectionItem').off();
+    }
+
+    function removeObject() {
+        delete($(presenter.view).find('.connectionItem')[0]);
+        $(presenter.view).find('.connectionItem').remove();
+    }
+
+    presenter.releaseMemory = function() {
+        removeEventListeners();
+        removeObject();
     };
 
     return presenter;

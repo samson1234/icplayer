@@ -620,5 +620,19 @@ function AddonTrueFalse_create() {
         presenter.isShowAnswersActive = false;
     };
 
+    function removeEventListeners() {
+        presenter.$view.find(".tf_" + presenter.type + "_image").off();
+    }
+
+    function removeObject() {
+        delete(presenter.$view[0]);
+        presenter.$view.remove();
+    }
+
+    presenter.releaseMemory = function() {
+        removeEventListeners();
+        removeObject();
+    };
+
     return presenter;
 }

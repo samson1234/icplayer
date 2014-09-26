@@ -288,4 +288,11 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		// TODO Auto-generated method stub
 		
 	}
+
+
+	@Override
+	public void releaseMemory() {
+		// TODO Auto-generated method stub
+		
+	}
 }

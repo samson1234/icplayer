@@ -196,4 +196,10 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver 
 	private Element getView(){
 		return view.getElement();
 	}
+
+	@Override
+	public void releaseMemory() {
+		// TODO Auto-generated method stub
+		
+	}
 }

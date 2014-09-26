@@ -224,4 +224,11 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 		
 		return presenter;
 	}-*/;
+
+
+	@Override
+	public void releaseMemory() {
+		// TODO Auto-generated method stub
+		
+	}
 }

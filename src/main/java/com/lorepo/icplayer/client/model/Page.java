@@ -634,5 +634,5 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage 
 
 		pageId = playerServices.getModel().getPage(index).getId();
 		return playerServices.getScoreService().getPageScoreById(pageId).hasScore();
-}
+	}
 }

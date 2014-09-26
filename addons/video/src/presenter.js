@@ -378,35 +378,13 @@ function Addonvideo_create() {
         }
     }
 
-    function removeEventListeners() {
-        $(presenter.video).off();
-//        presenter.video.removeEventListener("webkitfullscreenchange");
-//        presenter.video.removeEventListener("click");
-//        presenter.video.removeEventListener("error");
-//        presenter.video.removeEventListener("loadedmetadata");
-//        presenter.video.removeEventListener("pause");
-//        presenter.video.removeEventListener("ended");
-    }
-
-    function removeObject() {
-        presenter.video.pause();
-        delete(presenter.video);
-        $(presenter.video).remove();
-        presenter.$view.empty();
-    }
-
     presenter.getState = function() {
-        var state = {
+        return JSON.stringify({
             currentTime : this.video.currentTime,
             isCurrentlyVisible : this.isCurrentlyVisible,
             isPaused: this.video.paused,
             currentMovie: this.currentMovie
-        };
-
-        removeEventListeners();
-        removeObject();
-
-        return JSON.stringify(state);
+        });
     };
 
     presenter.setState = function(stateString) {
@@ -829,6 +807,22 @@ function Addonvideo_create() {
             isError: false,
             value: parsedValue
         };
+    };
+
+    function removeEventListeners() {
+        $(presenter.video).off();
+    }
+
+    function removeObject() {
+        presenter.video.pause();
+        delete(presenter.video);
+        $(presenter.video).remove();
+        presenter.$view.empty();
+    }
+
+    presenter.releaseMemory = function() {
+        removeEventListeners();
+        removeObject();
     };
 
     return presenter;

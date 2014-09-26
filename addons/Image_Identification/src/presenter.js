@@ -278,10 +278,12 @@ function AddonImage_Identification_create(){
     };
 
     presenter.getState = function() {
-        return JSON.stringify({
+        var state = {
             isSelected: presenter.configuration.isSelected,
             isVisible: presenter.configuration.isVisible
-        });
+        };
+
+        return JSON.stringify(state);
     };
 
     function loadImageEndCallback() {
@@ -412,7 +414,6 @@ function AddonImage_Identification_create(){
         if (eventName == "ShowAnswers") {
             presenter.showAnswers();
         }
-
         if (eventName == "HideAnswers") {
             presenter.hideAnswers();
         }
@@ -453,6 +454,23 @@ function AddonImage_Identification_create(){
          $(elementWasSelected).addClass(CSS_CLASSES.SELECTED).removeClass("was-selected");
 
         presenter.isShowAnswersActive = false;
+    };
+
+    function removeEventListeners() {
+        presenter.$view.find('div:first').off();
+    }
+
+    function removeObject() {
+        delete(presenter.$view.find('div')[0]);
+
+        presenter.$view.find('div').remove();
+
+        presenter.$view.empty();
+    }
+
+    presenter.releaseMemory = function() {
+        removeEventListeners();
+        removeObject();
     };
 
     return presenter;

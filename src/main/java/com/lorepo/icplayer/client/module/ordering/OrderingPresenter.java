@@ -277,4 +277,10 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	private boolean isAttempted() {
 		return view.getInitialOrder() != view.getState();
 	}
+
+	@Override
+	public void releaseMemory() {
+		// TODO Auto-generated method stub
+		
+	}
 }

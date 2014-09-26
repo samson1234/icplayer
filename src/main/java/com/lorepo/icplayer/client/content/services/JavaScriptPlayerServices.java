@@ -653,8 +653,6 @@ public class JavaScriptPlayerServices{
 			event = new CustomEvent(eventName, (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonString));
 		}
 		
-		
-		
 		if(event != null){
 			playerServices.getEventBus().fireEventFromSource(event, this);
 		}

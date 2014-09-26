@@ -100,28 +100,22 @@ public class PlayerController implements IPlayerController{
 	 * get current loaded page index
 	 * @return
 	 */
-	public int getCurrentPageIndex(){
-		
-		int index = 0;
-		for(int i = 0; i < contentModel.getPageCount(); i++){
-			if(contentModel.getPage(i) == pageController1.getPage()){
-				index = i;
-				break;
+	public int getCurrentPageIndex() {
+		for (int i = 0; i < contentModel.getPageCount(); i++) {
+			if (contentModel.getPage(i) == pageController1.getPage()) {
+				return i;
 			}
 		}
-		return index;
+		return 0;
 	}
-	
 	
 	public Content	getModel(){
 		return contentModel;
 	}
 	
-	
 	public PlayerView getView(){
 		return playerView;
 	}
-	
 	
 	/**
 	 * Przełączenie się na stronę o podanej nazwie
@@ -133,8 +127,7 @@ public class PlayerController implements IPlayerController{
 		int index = getModel().getPages().findPageIndexByName(pageName);
 		if(index > -1){
 			switchToPage(index);
-		}
-		else{
+		} else {
 			Window.alert("Missing page:\n<" + pageName + ">");
 		}
 	}
@@ -144,8 +137,7 @@ public class PlayerController implements IPlayerController{
 		int index = getModel().getPages().findPageIndexById(pageId);
 		if(index > -1){
 			switchToPage(index);
-		}
-		else{
+		} else {
 			Window.alert("Missing page with id:\n<" + pageId + ">");
 		}
 	}
@@ -165,7 +157,6 @@ public class PlayerController implements IPlayerController{
 			}
 		}
 	}
-
 
 	public void switchToNextPage() {
 
@@ -189,29 +180,21 @@ public class PlayerController implements IPlayerController{
 	 * Switch to page at given index
 	 * @param index
 	 */
-	public void switchToPage(int index){
+	public void switchToPage(int index) {
 		
 		closeCurrentPages();
 		IPage page;
 		if(pageController2 != null){
-			if( (!showCover && index%2 > 0) || 
-				(showCover && index%2 == 0 && index > 0))
-			{
+			if( (!showCover && index%2 > 0) || (showCover && index%2 == 0 && index > 0)) {
 				index -= 1;
 			}
 		}
-		if(index < contentModel.getPages().getTotalPageCount()){
-			page = contentModel.getPage(index);
-		}
-		else{
-			page = contentModel.getPage(0);
-		}
+		page = contentModel.getPage(index < contentModel.getPages().getTotalPageCount() ? index : 0);
 		
 		if(showCover && index == 0){
 			playerView.showSinglePage();
 			switchToPage(page, pageController1);
-		}
-		else{
+		} else {
 			switchToPage(page, pageController1);
 			if(pageController2 != null && index+1 < contentModel.getPages().getTotalPageCount()){
 				playerView.showTwoPages();
@@ -221,10 +204,7 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 	
-
 	private void switchToPage(IPage page, final PageController pageController){
-
-		
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
 		sendAnalytics("switch to page", params );
@@ -411,7 +391,6 @@ public class PlayerController implements IPlayerController{
 		isPopupEnabled = enabled;
 	}
 
-
 	@Override
 	public IPresenter findHeaderModule(String id) {
 		if (headerController == null) {
@@ -429,7 +408,5 @@ public class PlayerController implements IPlayerController{
 		
 		return footerController.findModule(id);	
 	}
-
-
 
 }
