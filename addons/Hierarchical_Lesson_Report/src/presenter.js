@@ -59,7 +59,7 @@ function AddonHierarchical_Lesson_Report_create() {
         if (presenter.configuration.showMistakes) headerHTML += "<td class='hier_report-mistakes'> " + presenter.configuration.mistakesLabel + "</td>";
         if (presenter.configuration.showErrors) headerHTML += "<td class='hier_report-errors'> " + presenter.configuration.errorsLabel + "</td>";
         if (presenter.configuration.showPageScore) headerHTML += "<td class='hier_report-page-score'> </td>";
-        if (presenter.configuration.showMaxScoreField) headerHTML += "<td class='hier_report-page-non-max-score'> </td>";
+        if (presenter.configuration.showMaxScoreField) headerHTML += "<td></td>";
         $("<tr></tr>").prependTo($("#" + presenter.treeID).find('table')).addClass("hier_report-header").html(headerHTML);
     }
 
@@ -104,8 +104,7 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         if (presenter.configuration.showMaxScoreField) {
-            var className = (totalScore === totalMaxScore ? "page-max-score" : "page-non-max-score");
-            $("<td></td>").appendTo($(row)).addClass("hier_report-" + className);
+            $("<td></td>").appendTo($(row));
         }
     }
 
@@ -201,7 +200,7 @@ function AddonHierarchical_Lesson_Report_create() {
             }
 
             if (presenter.configuration.showMaxScoreField) {
-                var className = (score.score === score.maxScore ? "page-max-score" : "page-non-max-score");
+                var className = (score.score === score.maxScore && score.maxScore !== 0 ? "page-max-score" : "page-non-max-score");
                 $("<td></td>").appendTo($(row)).addClass("hier_report-" + className);
             }
         } else {
