@@ -1,9 +1,9 @@
 package com.lorepo.icplayer.client.model;
 
-import com.google.gwt.core.client.GWT;
-
 import java.util.Collection;
 import java.util.HashMap;
+
+import com.google.gwt.core.client.GWT;
 
 public class AddonDescriptorFactory {
 
@@ -120,7 +120,7 @@ public class AddonDescriptorFactory {
 
         // LEARN PEN
         addDescriptor("LearnPen", "LearnPen Drawing", "learn_pen_menu");
-        //addDescriptor("LearnPen_Data", "LearnPen Data", "learn_pen_menu");
+        addDescriptor("LearnPen_Data", "LearnPen Data", "learn_pen_menu");
     }
 
 	private void addDescriptor(String id, String name, String category) {
