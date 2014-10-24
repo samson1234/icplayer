@@ -1,4 +1,9 @@
 2014-10-24 Added new properties: "Row classes", "Show max score field", "Show page score" and "Disable score on pages" to Hierarchical Lesson Report
+2014-10-24 Fixed displaying IWB Toolbar in editor preview
+2014-10-23 Fixed issue with pulling up collumns reduced to 0 on mobile devices in Graph module
+2014-10-23 Fixed problem with autoplaying after click on text fragment in TextAudio module
+2014-10-23 Added playing and end events to MultiAudio
+2014-10-23 Fixed issue with zoom, note and displaying elements in IWB Toolbar module
 2014-10-23 Fixed stopwatch on mLibro windows in IWB toolbar module
 2014-10-21 Fixed problem with autoplaying in MultiAudio module
 2014-10-20 Improved Spanish translations

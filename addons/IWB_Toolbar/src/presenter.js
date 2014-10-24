@@ -337,7 +337,8 @@ function AddonIWB_Toolbar_create(){
         presenter.$view = $(view);
         presenter.$panel = $(view).find('.iwb-toolbar-panel');
         presenter.$panel.attr('id', model['ID'] + '-panel');
-        presenter.$pagePanel = presenter.$view.parents('.ic_player').find('.ic_page').parent('.ic_page_panel');
+        //presenter.$pagePanel = presenter.$view.parents('.ic_player').find('.ic_page').parent('.ic_page_panel');
+        presenter.$pagePanel = $('.ic_page:last').parent('.ic_page_panel');
         presenter.$icplayer = presenter.$panel.parents('.ic_player').parent();
         presenter.$defaultThicknessButton = presenter.$panel.find('.thickness-1');
         presenter.$defaultColorButton = presenter.$panel.find('.color-blue');
@@ -345,7 +346,7 @@ function AddonIWB_Toolbar_create(){
         presenter.isInFrame = window.parent.location != window.location;
         presenter.$buttonsExceptOpen = presenter.$panel.children('.button:not(.open)');
         presenter.buttonWidth = presenter.$buttonsExceptOpen.width();
-        $('.ic_page:first').append(presenter.$panel);
+        $('.ic_page:last').append(presenter.$panel);
         presenter.$pagePanel.css('cursor', 'initial');
         presenter.$view.disableSelection();
         presenter.$removeConfirmationBox = presenter.$view.find('.confirmation-remove-note');
@@ -550,47 +551,49 @@ function AddonIWB_Toolbar_create(){
         presenter.$pagePanel.find('.zoom').click(function(e) {
             e.stopPropagation();
             e.preventDefault();
-
             changeCursor('zoom-in');
+            var zoomClicked = presenter.$panel.find('.zoom').hasClass('clicked');
 
             var lastEvent = null;
-            var modules = presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel)');
+            presenter.modules = presenter.$pagePanel.find('.ic_page > div:not(.iwb-toolbar-panel,.iwb-toolbar-note,.iwb-toolbar-clock,.iwb-toolbar-stopwatch,.confirmation-remove-note)');
 
             presenter.$pagePanel.disableSelection();
 
-            modules.on('click mousedown mouseup', function(e) {
+            presenter.modules.on('click mousedown mouseup', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
             });
 
-            modules.find('a').on('click', function(e) {
+            presenter.modules.find('a').on('click', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
             });
 
-            modules.on('mousedown', function(e) {
+            presenter.modules.on('mousedown', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 lastEvent = e;
                 presenter.isMouseDown= true;
             });
 
-            modules.on('mouseup', function(e) {
+            presenter.modules.on('mouseup', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 presenter.isMouseDown = false;
 
                 if (lastEvent.type == 'mousedown' &&
                     !$(e.currentTarget).hasClass('iwb-toolbar-panel') &&
-                    !$(e.currentTarget).hasClass('addon_IWB_Toolbar')) { // click
+                    !$(e.currentTarget).hasClass('addon_IWB_Toolbar') &&
+                    !$(e.currentTarget).hasClass('iwb-toolbar-note') &&
+                    !$(e.currentTarget).hasClass('iwb-toolbar-clock') &&
+                    !$(e.currentTarget).hasClass('iwb-toolbar-stopwatch')) { // click
 
                     zoomSelectedModule(e.currentTarget);
                 }
-
                 lastEvent = e;
             });
 
-            modules.on('mousemove', function(e) {
+            presenter.modules.on('mousemove', function(e) {
                 if (presenter.isMouseDown) {
                     e.stopPropagation();
                     e.preventDefault();
@@ -934,33 +937,103 @@ function AddonIWB_Toolbar_create(){
         });
     }
 
+    function drawSketch () {
+        var canvas = $('.ic_page:last').find('.selecting').find('canvas');
+        var ctx = canvas[0].getContext('2d');
+
+        var sketch = $('.ic_page:last').find('.selecting');
+        canvas.width = sketch.width;
+        canvas.height = sketch.height;
+
+        var tmp_canvas = document.createElement('canvas');
+        var tmp_ctx = tmp_canvas.getContext('2d');
+        tmp_canvas.id = 'tmp_canvas';
+        tmp_canvas.width = canvas.width();
+        tmp_canvas.height = canvas.height();
+
+        $('.ic_page:last').find('.selecting').append(tmp_canvas);
+
+        var mouse = {x: 0, y: 0};
+        var start_mouse = {x: 0, y: 0};
+
+
+        /* Mouse Capturing Work */
+        tmp_canvas.addEventListener('mousemove', function(e) {
+            mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+            mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+        }, false);
+
+
+        /* Drawing on Paint App */
+        tmp_ctx.lineWidth = 1;
+        tmp_ctx.lineJoin = 'round';
+        tmp_ctx.lineCap = 'round';
+        tmp_ctx.strokeStyle = 'black';
+        tmp_ctx.fillStyle = 'black';
+
+        tmp_canvas.addEventListener('mousedown', function(e) {
+            tmp_canvas.addEventListener('mousemove', onPaint, false);
+
+            mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
+            mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
+
+            start_mouse.x = mouse.x;
+            start_mouse.y = mouse.y;
+
+            onPaint();
+        }, false);
+
+        tmp_canvas.addEventListener('mouseup', function() {
+            tmp_canvas.removeEventListener('mousemove', onPaint, false);
+
+            // Writing down to real canvas now
+            //ctx.drawImage(tmp_canvas, 0, 0);
+            // Clearing tmp canvas
+            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+        }, false);
+
+        var onPaint = function() {
+
+            // Tmp canvas is always cleared up before drawing.
+            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+            var x = Math.min(mouse.x, start_mouse.x);
+            var y = Math.min(mouse.y, start_mouse.y);
+            var width = Math.abs(mouse.x - start_mouse.x);
+            var height = Math.abs(mouse.y - start_mouse.y);
+            tmp_ctx.strokeRect(x, y, width, height);
+
+        };
+
+    }
+
+
     function drawAreaLogic(isHide) {
-        presenter.selectingCanvas.selectable({
-            stop: function( event, _ ) {
-                var pos = getCursorPosition(event.originalEvent);
-                presenter.stopSelection = {
-                    x: presenter.startSelection.x + pos.x,
-                    y: presenter.startSelection.y + pos.y
-                };
+        drawSketch();
+        $('.ic_page:last').find('.selecting').find('#tmp_canvas').on('mousedown', function (event) {
+            var pos = getCursorPosition(event.originalEvent);
+            presenter.startSelection = {
+                x: pos.x,
+                y: pos.y
+            };
+        });
 
-                drawArea(isHide);
-
-                presenter.areas.push({
-                    isHide: isHide,
-                    width: presenter.startSelection.x - presenter.stopSelection.x,
-                    height: presenter.startSelection.y - presenter.stopSelection.y,
-                    x: presenter.stopSelection.x,
-                    y: presenter.stopSelection.y,
-                    color: presenter.currentLineColor
-                });
-            },
-            start: function( event, _ ) {
-                var pos = getCursorPosition(event.originalEvent);
-                presenter.startSelection = {
-                    x: pos.x,
-                    y: pos.y
-                };
-            }
+        $('.ic_page:last').find('.selecting').find('#tmp_canvas').on('mouseup', function (event) {
+            var pos = getCursorPosition(event.originalEvent);
+            presenter.stopSelection = {
+                x: pos.x,
+                y: pos.y
+            };
+            drawArea(isHide);
+            presenter.areas.push({
+                isHide: isHide,
+                width: presenter.startSelection.x - presenter.stopSelection.x,
+                height: presenter.startSelection.y - presenter.stopSelection.y,
+                x: presenter.stopSelection.x,
+                y: presenter.stopSelection.y,
+                color: presenter.currentLineColor
+            });
         });
     }
 
@@ -1034,13 +1107,26 @@ function AddonIWB_Toolbar_create(){
         stopwatch.append(header);
         stopwatch.append(buttons);
 
+        var ic_page_height = $('.ic_page:last').height(),
+            panel_top = parseInt(presenter.$panel.css('top'), 10),
+            window_scroll = $(window).scrollTop(),
+            panel_outerHeight = presenter.$panel.outerHeight(true),
+            panel_differance = ic_page_height-panel_top-window_scroll,
+            top=0;
+
+        if(panel_differance < panel_outerHeight){
+            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + $(window).scrollTop() - presenter.$pagePanel.offset().top - 120
+        }else{
+            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + $(window).scrollTop() - presenter.$pagePanel.offset().top
+        }
+
         if(!presenter.stopwatchAdded){
             stopwatch.draggable({
                 containment: 'parent',
                 opacity: 0.35,
                 create: function(event, _) {
                     $(event.target).css({
-                        'top' : savedStopwatch ? savedStopwatch.top : parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) - presenter.$pagePanel.offset().top,
+                        'top' : savedStopwatch ? savedStopwatch.top : top,
                         'left' : savedStopwatch ? savedStopwatch.left : presenter.$panel.css('left'),
                         'position' : 'absolute'
                     });
@@ -1141,13 +1227,26 @@ function AddonIWB_Toolbar_create(){
         clock.append(header);
         clock.append(clockBody);
 
+        var ic_page_height = $('.ic_page:last').height(),
+            panel_top = parseInt(presenter.$panel.css('top'), 10),
+            window_scroll = $(window).scrollTop(),
+            panel_outerHeight = presenter.$panel.outerHeight(true),
+            panel_differance = ic_page_height-panel_top-window_scroll,
+            top=0;
+
+        if(panel_differance < panel_outerHeight){
+            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + $(window).scrollTop() - presenter.$pagePanel.offset().top - 120
+        }else{
+            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + $(window).scrollTop() - presenter.$pagePanel.offset().top
+        }
+
         if(!presenter.clockAdded){
             clock.draggable({
                 containment: 'parent',
                 opacity: 0.35,
                 create: function(event, _) {
                     $(event.target).css({
-                        'top' : savedClock ? savedClock.top : parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) - presenter.$pagePanel.offset().top,
+                        'top' : savedClock ? savedClock.top : top,
                         'left' : savedClock ? savedClock.left : presenter.$panel.css('left'),
                         'position' : 'absolute'
                     });
@@ -1225,17 +1324,31 @@ function AddonIWB_Toolbar_create(){
 
         applyNoteEditHandler(note, noteBody);
 
+
+        var ic_page_height = $('.ic_page:last').height(),
+            panel_top = parseInt(presenter.$panel.css('top'), 10),
+            window_scroll = $(window).scrollTop(),
+            panel_outerHeight = presenter.$panel.outerHeight(true),
+            panel_differance = ic_page_height-panel_top-window_scroll,
+            top=0;
+
+        if(panel_differance < panel_outerHeight){
+            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + $(window).scrollTop() - presenter.$pagePanel.offset().top - 120
+        }else{
+            top = parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) + $(window).scrollTop() - presenter.$pagePanel.offset().top
+        }
+
         note.draggable({
-            containment: 'parent',
-            opacity: 0.35,
-            create: function(event, _) {
-                $(event.target).css({
-                    'top' : savedNote ? savedNote.top : parseInt(presenter.$panel.css('top'), 10) + presenter.$panel.outerHeight(true) - presenter.$pagePanel.offset().top,
-                    'left' : savedNote ? savedNote.left : presenter.$panel.css('left'),
-                    'position' : 'absolute'
-                });
-            }
-        });
+                containment: 'parent',
+                opacity: 0.35,
+                create: function(event, _) {
+                    $(event.target).css({
+                        'top' : savedNote ? savedNote.top : top,
+                        'left' : savedNote ? savedNote.left : presenter.$panel.css('left'),
+                        'position' : 'absolute'
+                    });
+                }
+            });
         
         return note;
     }
@@ -1330,6 +1443,11 @@ function AddonIWB_Toolbar_create(){
         } else {
             reset(false, false, shouldHideDrawingMasks(button), shouldHideSelectingMasks(button), shouldHideFloatingImage(button));
             presenter.$panel.find('.clicked').removeClass('clicked');
+            if(!$(button).hasClass('zoom')){
+                if(presenter.modules){
+                    presenter.modules.off('mouseup mousemove');
+                }
+            }
             if ( !$(button).hasClass('open') && !$(button).hasClass('close') ) {
                 $(button).toggleClass('clicked');
             }
@@ -1393,7 +1511,7 @@ function AddonIWB_Toolbar_create(){
                 presenter.selectingCtx = ctx
             },
             function(canvas) {
-                presenter.selectingCanvas = canvas
+                presenter.selectingCanvas = canvas;
             }
         );
 
@@ -1404,7 +1522,7 @@ function AddonIWB_Toolbar_create(){
         $mask = setMask($mask);
         $mask.hide();
 
-        var icPage = presenter.$pagePanel.find('.ic_page');
+        var icPage = presenter.$pagePanel.find('.ic_page:last');
         icPage.css('position', 'relative');
         icPage.append($mask);
 
@@ -1487,8 +1605,8 @@ function AddonIWB_Toolbar_create(){
 
         if (closePanel) {
 //            presenter.$toggleButton.removeClass('clicked');
-            presenter.$panel.hide();
-            window.savedPanel.isOpen = false;
+//            presenter.$panel.hide();
+//            window.savedPanel.isOpen = false;
         }
     }
 
@@ -1604,6 +1722,7 @@ function AddonIWB_Toolbar_create(){
     }
 
     presenter.getState = function(){
+        zoom.out();
         var notes = getSavedNotes(),
             clocks = getSavedClocks(),
             stopwatches = getSavedStopwatches(),
