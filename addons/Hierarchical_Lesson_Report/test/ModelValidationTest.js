@@ -17,7 +17,10 @@ TestCase("Model Validation Test Case", {
             titleLabel: "",
             total: "True",
             totalLabel: "",
-            classes: ""
+            classes: "",
+            showpagescore: "True",
+            showmaxscorefield: "True",
+            scoredisabled: "1;2"
         };
     },
 
@@ -91,5 +94,60 @@ TestCase("Model Validation Test Case", {
 
         assertFalse(validationResult.isValid);
         assertEquals("C02", validationResult.errorCode);
+    },
+
+    'test disable score field with NaN value': function() {
+        this.model["scoredisabled"] = "1;a;4";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertFalse(validationResult.isValid);
+        assertEquals("D01", validationResult.errorCode);
+    },
+
+    'test disable score field with empty value': function() {
+        this.model["scoredisabled"] = "1;;";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertFalse(validationResult.isValid);
+        assertEquals("D01", validationResult.errorCode);
+    },
+
+    'test disable score field with empty last value': function() {
+        this.model["scoredisabled"] = "1;4;";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertFalse(validationResult.isValid);
+        assertEquals("D01", validationResult.errorCode);
+    },
+
+    'test disable score field with semicolon': function() {
+        this.model["scoredisabled"] = ";";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertFalse(validationResult.isValid);
+        assertEquals("D01", validationResult.errorCode);
+    },
+
+    'test disable score field lower then 1': function() {
+        this.model["scoredisabled"] = "0;1;2";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertFalse(validationResult.isValid);
+        assertEquals("D02", validationResult.errorCode);
+    },
+
+    'test disable score field unique values': function() {
+        this.model["scoredisabled"] = "1;1";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertFalse(validationResult.isValid);
+        assertEquals("D03", validationResult.errorCode);
     }
+
 });

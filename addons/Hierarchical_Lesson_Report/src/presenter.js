@@ -17,7 +17,8 @@ function AddonHierarchical_Lesson_Report_create() {
         C02: "Class names has to be separated by new line",
 
         D01: "Values in Disable score on pages property should be numeric and non empty",
-        D02: "Values in Disable score on pages property should be "
+        D02: "Values in Disable score on pages property should be greater than 0",
+        D03: "Values in Disable score on pages property should be unique"
     };
 
     function returnErrorObject(ec) { return { isValid: false, errorCode: ec }; }
@@ -68,8 +69,7 @@ function AddonHierarchical_Lesson_Report_create() {
         $(row).appendTo($("#" + presenter.treeID).find('table'));
         $(row).addClass("hier_report-footer");
 
-        var nameCell = document.createElement('td');
-        $(nameCell).appendTo($(row)).html(presenter.configuration.totalLabel);
+        $("<td></td>").appendTo($(row)).html(presenter.configuration.totalLabel);
 
         if (presenter.configuration.showResults) {
             var score = resetScore();
@@ -422,16 +422,25 @@ function AddonHierarchical_Lesson_Report_create() {
             return returnCorrectObject([]);
         }
 
+        var i;
+
         var pages = pages_text.split(';');
-        for (var i=0; i<pages.length; i++) {
-            if (!ModelValidationUtils.validateInteger(pages[i]).isValid) {
+        for (i=0; i<pages.length; i++) {
+            var numberObject = ModelValidationUtils.validateInteger(pages[i]);
+            if (!numberObject.isValid) {
                 return returnErrorObject("D01");
             }
 
-            pages[i] = parseInt(pages[i], 10) - 1; // indexing from 0
+            pages[i] = numberObject.value - 1; // indexing from 0
 
             if (pages[i] < 0) {
                 return returnErrorObject("D02");
+            }
+        }
+
+        for (i=1; i<pages.length; i++) {
+            if (pages.sort()[i] === pages.sort()[i-1]) {
+                return returnErrorObject("D03");
             }
         }
 
@@ -454,8 +463,8 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         var validatedDisabledScorePages = parseScoreDisable(model["scoredisabled"]);
-        if (!validatedClasses.isValid) {
-            return returnErrorObject(validatedClasses.errorCode);
+        if (!validatedDisabledScorePages.isValid) {
+            return returnErrorObject(validatedDisabledScorePages.errorCode);
         }
 
         return {
@@ -490,8 +499,8 @@ function AddonHierarchical_Lesson_Report_create() {
 
     presenter.initialize = function (view, model) {
         presenter.$view = $(view);
-        presenter.configuration = presenter.validateModel(model);
 
+        presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
             presenter.showErrorMessage(presenter.ERROR_MESSAGES[presenter.configuration.errorCode]);
             return;
