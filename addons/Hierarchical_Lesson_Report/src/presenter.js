@@ -53,7 +53,7 @@ function AddonHierarchical_Lesson_Report_create() {
     };
 
     function addHeader() {
-        var headerHTML = "<td> " + presenter.configuration.titleLabel + "</td>"
+        var headerHTML = "<td> " + presenter.configuration.titleLabel + "</td>";
         if (presenter.configuration.showResults) headerHTML += "<td class='hier_report-progress'> " + presenter.configuration.resultsLabel + "</td>";
         if (presenter.configuration.showChecks) headerHTML += "<td class='hier_report-checks'> " + presenter.configuration.checksLabel + "</td>";
         if (presenter.configuration.showMistakes) headerHTML += "<td class='hier_report-mistakes'> " + presenter.configuration.mistakesLabel + "</td>";
