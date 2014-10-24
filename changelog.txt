@@ -1,3 +1,85 @@
+2014-10-23 Fixed stopwatch on mLibro windows in IWB toolbar module
+2014-10-21 Fixed problem with autoplaying in MultiAudio module
+2014-10-20 Improved Spanish translations
+2014-10-17 A return full functionality mouseMoveCallback in Graph module
+2014-10-17 Fixed issue with pulling up collumn reduced to 0 in Graph module
+2014-10-16 Fixed issue with double rendered LaTeX in Choice
+2014-10-16 Added handling property Is Visible in IWB Toolbar module
+2014-10-15 Added collaboration between crossword and eKeyboard modules
+2014-10-13 Added stopwatch, clock and changed view of panel in IWB Toolbar module
+2014-10-13 Added new property: Real-time navigationbar-page-ok to Navigation Bar
+2014-10-13 Fixed issue with getting JS representation of Check Button module
+2014-10-13 Fixed showing Layered Image module on IOS 8.0.2
+2014-10-09 Fixed issue with symbols in dropdown gaps for Table module
+2014-10-09 Fixed issue with double lines in Connection module
+2014-10-09 Added new version of Swiffy Animation module and swiffy library.
+2014-10-09 Added Show Answers to Crossword module
+2014-10-08 Fixed issue with double lines in Connection module
+2014-10-06 Removed console.log from Text module
+2014-10-06 Added Show Answers to Table module
+2014-10-06 Removed unused libraries
+2014-10-06 Added Show Answers to Writing Calculations module
+2014-10-06 Added Show Answers to Basic Math Gaps module
+2014-10-03 Fixed problem with Connection in editor preview
+2014-10-03 Fixed problem with apostrophes in gaps are being worked with eKeyboard
+2014-10-01 Fixed problem with gaps being enabled regardless of initial configuration after Reset in Text module
+2014-10-01 Fixed issiue with lines on Android 4.1.2 in Connection module
+2014-10-01 Fixed issues with loading Adobe Edge Animation JavaScript Runtime in Edge Animation module
+2014-10-01 Fixed problems with configuration in Paragraph module
+2014-09-30 Fixed blocked gaps issue in response to ShowAnswers event in Text module
+2014-09-29 Added blocking on Check in Coloring module
+2014-09-29 Fixed activity in Show Answers mode in Coloring, Connection and Image Identification modules.
+2014-09-29 Fixed problem with libraries and date in IWB Toolbar module.
+2014-09-29 Fixed problem with Play button in Slideshow module after changing slides
+2014-09-29 Fixed placement of Next and Report buttons in Navigation Bar module
+2014-09-26 Fixed restoring user selection after CheckAnswers event in ShowAnswers mode in Text Selection module
+2014-09-26 Fixed handling Reset event while in ShowAnswers mode in Ordering module
+2014-09-26 Fixed double lines on Android.4.1.2 in Connection module
+2014-09-26 Fixed showing on Android 4.1.2 in Glossary module
+2014-09-25 Fixed ShowAnswers in Text module for all type of gaps
+2014-09-25 Added disable to Choice module when in ShowAnswers mode
+2014-09-24 Added toolbar separator support in Paragraph module ( | - pipe)
+2014-09-24 Removed cut, copy & paste buttons from toolbar in Paragraph module
+2014-09-24 Added new toolbar features in Paragraph module: forecolor and backcolor
+2014-09-24 Fixed hiding toolbar when toolbar buttons are in more than one line in Paragraph module
+2014-09-24 Loading content fixes in Coloring module
+2014-09-21 Added library for Edge Animation module
+2014-09-23 Added close button to Page Rating module
+2014-09-23 Fixed issue with Navigation Bar on iPad with iOS8
+2014-09-22 Fixed issue with Animation on iPads
+2014-09-22 Fixed Connection module: hiding images does not occur anymore
+2014-09-19 Fixed show answers in Text module
+2014-09-19 Added new module: Pie Chart
+2014-09-19 [IWB Toolbar] Unified date in notes, now notes appears always below panel
+2014-09-18 Fixed problem with width and height in Ordering module
+2014-09-17 Changed libraries to minified versions
+2014-09-17 Fixed problem with doubled properties in Editor
+2014-09-17 Fixed problem with loading progress circle in Editor
+2014-09-17 Fixed problem with Player not loading in iframe embeded lessons
+2014-09-16 [CheckAnswers] Fixed problem with backward compatibility checkAnswers modules
+2014-09-16 Fixed problem with setting state in Multiple Gap module
+2014-09-15 Fixed issue with loading resources on IE11 in Slideshow module
+2014-09-15 Added "Custom toolbar" property to Paragraph module
+2014-09-15 Fixed Image Viewer issue in mexican lesson
+2014-09-15 Fixed eKeyboard issues on Android devices
+2014-09-12 IWB Toolbar: fixed preview
+2014-09-12 [Ordering] Added new property: Even width for all elements, to avoid problems with images in Safari
+2014-09-12 IWB Toolbar: now you can hide unnecessary buttons
+2014-09-12 Fixed problem with loading progress circle for other views than embed
+2014-09-12 Fixed problem with propagation in IWB Toolbar module
+2014-09-11 Changed time format in note in IWB Toolbar module
+2014-09-11 Fixed problem with command stop on iPad in Text Audio module
+2014-09-11 Fixed problem with double lines on Android 4.1.2 in Connection module
+2014-09-11 Fixed drawing issue on Android 4.1.2 native browser in ShapeTracing module
+2014-09-10 Changed Default Confirmation Alert Box to Custom in IWB Toolbar module
+2014-09-10 Fixed drawing issue on IE 11 mobile browser in ShapeTracing addon
+2014-09-10 Fixed drawing issue on IE 11 mobile browser
+2014-09-10 Fixed drawing issue on Android 4.1.2 native browser
+2014-09-10 Fixed reaction on Check button in Show Answers module and reaction on Show Answers in True False module
+2014-09-10 Added show, hide and isVisible commands to Paragraph module
+2014-09-08 Fixed isAttempted method in Coloring module
+2014-09-08 Fixed performance issue in Drawing addon
+2014-09-08 Added enabling letters selection in Text Selection module
 2014-09-05 Fixed deselecting text after completion of audio
 2014-09-04 Fixed calculating page and lesson scores in PlayerUtils
 2014-09-04 Writing Calculation: fixed error in console.log

@@ -45,7 +45,7 @@ function AddonColoring_create(){
     };
 
     presenter.sendEvent = function(item, value, score) {
-    	if (!presenter.isShowAnswersActive) {
+    	if (!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive) {
     		var eventData = presenter.createEventData(item, value, score);
     		presenter.eventBus.sendEvent('ValueChanged', eventData);
 
@@ -103,13 +103,15 @@ function AddonColoring_create(){
         e.stopPropagation();
         e.preventDefault();
 
+        presenter.isColored = true;
+
         presenter.click = getMousePositionOnCanvas(e, isTouch);
 
         presenter.click.color = getClickedAreaColor(presenter.click.x, presenter.click.y);
 
         if ( presenter.isAlreadyInColorsThatCanBeFilled(presenter.click.color) ) {
 
-            if(!presenter.isShowAnswersActive){
+            if(!presenter.isShowAnswersActive && !presenter.setShowErrorsModeActive){
                 floodFill(
                     presenter.click,
                     presenter.configuration.currentFillingColor,
@@ -142,8 +144,8 @@ function AddonColoring_create(){
         var imageElement = $('<img>');
         imageElement.attr('src', presenter.configuration.imageFile);
 
-        var canvasElement = $('<canvas></canvas>'),
-            ctx = canvasElement[0].getContext('2d');
+        var canvasElement = $('<canvas></canvas>');
+            presenter.ctx = canvasElement[0].getContext('2d');
 
         imageElement.load(function() {
             canvasElement.attr('width', imageElement[0].width);
@@ -153,12 +155,12 @@ function AddonColoring_create(){
             presenter.canvasHeight = imageElement[0].height;
             presenter.canvas = canvasElement[0];
 
-            ctx.drawImage(imageElement[0], 0, 0);
+            presenter.ctx.drawImage(imageElement[0], 0, 0);
             presenter.imageHasBeenLoaded = true;
 
-            presenter.imageData = ctx.getImageData(0, 0, imageElement[0].width, imageElement[0].height);
+            presenter.imageData = presenter.ctx.getImageData(0, 0, imageElement[0].width, imageElement[0].height);
 
-            presenter.ctx = ctx;
+            //presenter.ctx = ctx;
             presenter.image = imageElement;
 
             var coloringContainer = presenter.$view.find('.coloring-container');
@@ -222,8 +224,6 @@ function AddonColoring_create(){
 
                 presenter.runEndedDeferred.resolve();
             }
-
-
         });
     }
 
@@ -262,10 +262,6 @@ function AddonColoring_create(){
         }
         return true;
     };
-
-    function log(message) {
-        console.log(message);
-    }
 
     function getClickedAreaColor(x, y) {
         var data = presenter.ctx.getImageData(x, y, 1, 1).data,
@@ -543,12 +539,10 @@ function AddonColoring_create(){
         }
 
         var isAttempted = false;
-        $.each(presenter.configuration.areas, function() {
-            if (presenter.shouldBeTakenIntoConsideration(this)) {
-                isAttempted = true;
-                return false; // break;
-            }
-        });
+        if(presenter.isColored){
+            isAttempted = true;
+        }
+        
         return isAttempted;
     };
 
@@ -611,6 +605,7 @@ function AddonColoring_create(){
                 }
             });
         }
+        presenter.setShowErrorsModeActive = true;
     };
 
     function displayIcon(area, isWrong) {
@@ -632,6 +627,7 @@ function AddonColoring_create(){
 
     presenter.setWorkMode = function(){
         presenter.$view.find('.icon-container').remove();
+        presenter.setShowErrorsModeActive = false;
     };
 
     presenter.clearCanvas = function() {
@@ -642,6 +638,7 @@ function AddonColoring_create(){
     presenter.reset = function(){
         presenter.clearCanvas();
         presenter.$view.find('.icon-container').remove();
+        presenter.isColored = false;
         presenter.isShowAnswersActive = false;
 
         presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
@@ -678,7 +675,6 @@ function AddonColoring_create(){
                     errorsCount++;
                 }
             });
-
             return errorsCount;
         } else if (presenter.configuration.isActivity && presenter.savedErrorCount) {
             return 0;
@@ -752,10 +748,10 @@ function AddonColoring_create(){
             colorsThatCanBeFilled: presenter.configuration.colorsThatCanBeFilled,
             isVisible: presenter.configuration.isVisible,
             isDisabled: presenter.configuration.isDisabled,
+            isColored: presenter.isColored,
             score: presenter.getScore(),
             errorCount: presenter.getErrorCount()
         };
-
         return JSON.stringify(state);
     };
 
@@ -765,6 +761,7 @@ function AddonColoring_create(){
         presenter.configuration.isErase = parsed.isErase;
         presenter.configuration.isVisible = parsed.isVisible;
         presenter.configuration.isDisabled = parsed.isDisabled;
+        presenter.isColored = parsed.isColored;
         presenter.savedScore = parsed.score;
         presenter.savedErrorCount = parsed.errorCount;
 
@@ -925,9 +922,11 @@ function AddonColoring_create(){
     };
 
     presenter.showAnswers = function () {
-        if (presenter.validateModel.isActivity) {
+        if (!presenter.configuration.isActivity) {
             return;
         }
+        presenter.setShowErrorsModeActive = false;
+
         presenter.$view.find('.icon-container').remove();
         presenter.currentScore = presenter.getScore();
         presenter.currentErrorCount = presenter.getErrorCount();
@@ -960,7 +959,7 @@ function AddonColoring_create(){
     };
 
     presenter.hideAnswers = function () {
-        if (presenter.validateModel.isActivity) {
+        if (!presenter.configuration.isActivity) {
             return;
         }
 

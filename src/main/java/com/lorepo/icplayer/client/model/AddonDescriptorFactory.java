@@ -45,6 +45,7 @@ public class AddonDescriptorFactory {
         addDescriptor("Math", "Math", "activities_menu");
         addDescriptor("multiplegap", "Multiple Gap", "activities_menu");
         addDescriptor("Paragraph", "Paragraph", "activities_menu");
+        addDescriptor("PieChart", "Pie Chart", "activities_menu");
         addDescriptor("Plot", "Plot", "activities_menu");
         addDescriptor("Points_To_Plot", "Points To Plot", "activities_menu");
         addDescriptor("PointsLines", "Points and Lines", "activities_menu");
@@ -118,8 +119,8 @@ public class AddonDescriptorFactory {
         addDescriptor("Slider", "Slider", "scripting_menu");
 
         // LEARN PEN
-        addDescriptor("LearnPen_Data", "LearnPen Data", "learn_pen_menu");
         addDescriptor("LearnPen", "LearnPen Drawing", "learn_pen_menu");
+        //addDescriptor("LearnPen_Data", "LearnPen Data", "learn_pen_menu");
     }
 
 	private void addDescriptor(String id, String name, String category) {

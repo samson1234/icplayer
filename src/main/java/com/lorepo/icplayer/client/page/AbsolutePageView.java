@@ -55,8 +55,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	public void refreshMathJax() {
 		MathJax.refreshMathJax(getElement());
 	}
-
-
+	
 	@Override
 	public void addModuleView(IModuleView view, IModuleModel module){
 
@@ -169,6 +168,14 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay{
 	public void removeAllModules() {
 		widgets.clear();
 		clear();
+		
+//		for (String key : widgets.keySet()) {
+//			Widget w = widgets.get(key);
+//			w.getElement().removeFromParent();
+//			w.removeFromParent();
+//			
+//			w = null;
+//		}
 	}
 
 }

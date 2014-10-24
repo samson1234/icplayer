@@ -256,7 +256,6 @@ function AddonConnection_create() {
 
         this.setSingleMode(model['Single connection mode']);
 
-
         var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
         var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
 
@@ -443,11 +442,35 @@ function AddonConnection_create() {
         redraw();
         selectedItem.removeClass('selected');
         selectedItem = null;
+
+        if (MobileUtils.isAndroidWebBrowser(window.navigator.userAgent)) {
+            var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
+            if (["4.1.1", "4.1.2", "4.2.2", "4.3"].indexOf(android_ver) !== -1) {
+                $(presenter.view).find("canvas").parents("*").css("overflow", "visible");
+            }
+        }
     }
 
     presenter.registerListeners = function (view) {
 
         presenter.$connectionContainer = $(view).find('.connectionContainer');
+        presenter.$leftColumn = $(view).find('connectionLeftColumn');
+        presenter.$rightColumn = $(view).find('connectionRightColumn');
+
+        presenter.$connectionContainer.click(function (e){
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        presenter.$leftColumn.click(function (e){
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        presenter.$rightColumn.click(function (e){
+            e.preventDefault();
+            e.stopPropagation();
+        });
 
         var element = $(view).find('.connectionItem');
 
@@ -461,14 +484,43 @@ function AddonConnection_create() {
             e.preventDefault();
             e.stopPropagation();
             if (presenter.lastEvent.type != e.type) {
+                presenter.isClicked = false;
                 clickLogic(this);
+                presenter.isClicked = true;
             }
+        });
+
+        element.on('mouseleave', function (e) {
+            e.stopPropagation();
+        });
+
+        element.on('mouseenter', function (e) {
+            e.stopPropagation();
+        });
+
+        element.on('mouseup', function (e) {
+            e.stopPropagation();
+        });
+
+        element.on('mousedown', function (e) {
+            e.stopPropagation();
+        });
+
+        element.on('mouseover', function (e) {
+            e.stopPropagation();
+        });
+
+        element.on('mouseout', function (e) {
+            e.stopPropagation();
         });
 
         element.click(function (e) {
             e.stopPropagation();
-            clickLogic(this);
+            if(!presenter.isClicked){
+                clickLogic(this);
+            }
         });
+
     };
 
     presenter.setSingleMode = function (singleModeString) {
@@ -698,6 +750,7 @@ function AddonConnection_create() {
     }
 
     function drawLine(line, color) {
+        connections.width = connections.width;
         var from = getElementSnapPoint(line.from);
         var to = getElementSnapPoint(line.to);
         var canvasOffset = connections.offset();
@@ -760,7 +813,6 @@ function AddonConnection_create() {
         if (isNotActivity) return 0;
 
         return presenter.correctConnections.length();
-
     };
 
     presenter.getScore = function () {
@@ -831,7 +883,6 @@ function AddonConnection_create() {
     presenter.isAllOK = function () {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
-
 
     presenter.isSelected = function (leftIndex, rightIndex) {
         if (presenter.isShowAnswersActive) {
@@ -928,6 +979,10 @@ function AddonConnection_create() {
     };
 
     presenter.showAnswers = function () {
+        if (isNotActivity) {
+            return;
+        }
+
         presenter.isShowAnswersActive = true;
         presenter.tmpElements = [];
         for (var elem = 0; elem < presenter.lineStack.ids.length; elem++) {
@@ -963,6 +1018,9 @@ function AddonConnection_create() {
     };
 
     presenter.hideAnswers = function () {
+        if(isNotActivity) {
+            return;
+        }
         redraw();
         presenter.isShowAnswersActive = false;
         isSelectionPossible = true;

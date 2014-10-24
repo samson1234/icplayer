@@ -222,6 +222,7 @@ var ice_dictionary = {
 	"is_activity" : "Is&nbsp;activity",
 	"is_disabled" : "Is&nbsp;disabled",
 	"randomOrder" : "Random&nbsp;Order",
+	"All_elements_has_same_width" : "Even width for all elements",
 	"case_sensitive" : "Case&nbsp;sensitive",
 	"optional_order" : "order",
 	"add_header_footer": "Replace headers",
@@ -334,5 +335,6 @@ var ice_dictionary = {
     "Completion_Progress_info": "Enables to insert a ready-made progress bar indicating the percentage of attempted activity modules on a current page.",
     "Lesson_Error_Counter_info": "Enables to display summed number of errors of the entire lesson.",
     "Page_Score_Counter_info": "Shows the score and/or the max score for the lesson's page.",
-    "Lesson_Score_Counter_info": "Shows the score and/or the max score for the whole lesson."
+    "Lesson_Score_Counter_info": "Shows the score and/or the max score for the whole lesson.",
+    "PieChart_info": "Allows inserting a pie chart, where a student can change percentage values. "
 };

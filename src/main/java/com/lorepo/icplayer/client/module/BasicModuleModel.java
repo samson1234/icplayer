@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module;
 
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -13,23 +14,16 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
 
-/**
- * Klasa implementuje bazowe functionalności potrzebne wszystkim modułom
- * 
- * @author Krzysztof Langner
- */
-public abstract class BasicModuleModel extends StyledModule implements IModuleModel{
-
-	private String  moduleTypeName;
-	private String	id;
+public abstract class BasicModuleModel extends StyledModule implements IModuleModel {
+	private String moduleTypeName;
+	private String id;
 	private boolean isVisible = true;
 	private boolean isLocked = false;
 	private String baseURL;
 	private INameValidator nameValidator;
-
+	private String buttonType;
 	
 	protected BasicModuleModel(String typeName){
-		
 		super(typeName);
 		this.moduleTypeName = typeName;
 		id = UUID.uuid(6);
@@ -48,7 +42,6 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		return getModuleTypeName();
 	};
 	
-	
 	@Override
 	public String getId() {
 		return id;
@@ -60,8 +53,8 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	}
 	
 	@Override
-	public void release(){
-		
+	public void release() {
+		RootPanel.get(id).removeFromParent();
 	}
 	
 	/**
@@ -74,10 +67,9 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 
 		this.baseURL = baseUrl;
 		id = element.getAttribute("id");
-		if(id == null || id.compareTo("null") == 0){
+		if (id == null || id.compareTo("null") == 0) {
 			id = UUID.uuid(6);
-		}
-		else{
+		} else {
 			id = StringUtils.unescapeXML(id);
 		}
 		
@@ -103,12 +95,24 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		NodeList nodes = element.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++){
 			Node childNode = nodes.item(i);
+			
+			if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element){
+				buttonType = StringUtils.unescapeXML(((Element) childNode).getAttribute("type"));
+				setButtonType(buttonType);
+			}
 			if(childNode.getNodeName().compareTo("layout") == 0 && childNode instanceof Element){
 				layout.load((Element) childNode);
 			}
 		}
 	}
 
+	private void setButtonType(String type) {
+		this.buttonType = type;
+	}
+
+	public String getButtonType() {
+		return buttonType;
+	}
 	
 	protected String getBaseXML(){
 		
@@ -118,33 +122,30 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 				"right='" + getRight() + "' bottom='" + getBottom() + "' " +
 				"isVisible='" + isVisible + "' isLocked='" + isLocked +"'";
 		
-		if(!getInlineStyle().isEmpty()){
+		if (!getInlineStyle().isEmpty()) {
 			String encodedStyle = StringUtils.escapeXML(getInlineStyle());
 			xml += " style='" + encodedStyle + "'";
 		}
 		
-		if(!getStyleClass().isEmpty()){
+		if (!getStyleClass().isEmpty()) {
 			String encodedStyleClass = StringUtils.escapeXML(getStyleClass());
 			xml += " class='" + encodedStyleClass + "'";
 		}
 		
 		return xml;
 	}
-	
-	
-	protected String getLayoutXML(){
+
+	protected String getLayoutXML() {
 		return layout.toXML();
 	}
-	
-	
+
 	private void addPropertyId() {
 
 		IProperty property = new IProperty() {
 			
 			@Override
 			public void setValue(String newValue) {
-				
-				if(nameValidator != null && nameValidator.canChangeName(newValue)){
+				if (nameValidator != null && nameValidator.canChangeName(newValue)) {
 					id = newValue;
 					sendPropertyChangedEvent(this);
 				}
@@ -169,14 +170,13 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	}
 
 	private void addPropertyIsVisible() {
-
 		IProperty property = new IBooleanProperty() {
 			
 			@Override
 			public void setValue(String newValue) {
 				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
 				
-				if(value!= isVisible){
+				if (value != isVisible) {
 					isVisible = value;
 					sendPropertyChangedEvent(this);
 				}
@@ -184,12 +184,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			
 			@Override
 			public String getValue() {
-				if(isVisible){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return isVisible ? "True" : "False";
 			}
 			
 			@Override
@@ -206,27 +201,25 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		
 		addProperty(property);
 	}
-
 	
-	public boolean isVisible(){
+	public boolean isVisible() {
 		return isVisible;
 	}
 
-	public void lock(boolean state){
+	public void lock(boolean state) {
 		isLocked = state;
 	}
 	
-	public boolean isLocked(){
+	public boolean isLocked() {
 		return isLocked;
 	}
 	
-	public String getBaseURL(){
+	public String getBaseURL() {
 		return baseURL;
 	}
 	
-
 	@Override
-	public void addNameValidator(INameValidator validator){
+	public void addNameValidator(INameValidator validator) {
 		this.nameValidator = validator;
 	}
 }

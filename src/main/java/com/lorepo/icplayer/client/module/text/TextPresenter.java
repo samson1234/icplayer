@@ -71,7 +71,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setValue(String id, String value);
 		void refreshMath();
 		void hide();
-		void show();
+		void show(boolean b);
 		Element getElement();
 		void connectMathGap(Iterator<GapInfo> giIterator, String id, ArrayList<Boolean> savedDisabledState);
 	}
@@ -98,7 +98,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		connectHandlers();
 	}
-
+	
 	private void connectHandlers() {
 		EventBus eventBus = playerServices.getEventBus();
 		
@@ -147,7 +147,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 	
 	private boolean isShowAnswers() {
-		return module.isActivity() && this.isShowAnswersActive;
+		if (!module.isActivity()) {
+			return false;
+		}
+		
+		return this.isShowAnswersActive;
 	}
 	
 	int getOptionIndex(InlineChoiceInfo choice, String optionName) {
@@ -163,77 +167,73 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		return -1;
 	}
 	
-	boolean isDropDown;
-	
 	private void showAnswers() {
-		if (!module.isActivity() || this.isShowAnswersActive) { return; }
+		if (!module.isActivity()) {
+			if (this.isShowErrorsMode) {
+				setWorkMode();
+			}
+			
+			return;
+		}
 		
 		this.currentState = getState();
+		this.isShowAnswersActive = true;
 		
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			TextElementDisplay child = view.getChild(i);
 			child.reset();
 			child.setStyleShowAnswers();
 		}
+
+		List<GapInfo> gapsInfos = module.getGapInfos();
+		for (int index = 0; index < gapsInfos.size(); index++) {
+			TextElementDisplay gap = view.getChild(index);
+			
+			GapInfo gi = gapsInfos.get(index);
+			
+			// show only 1st answer
+			Iterator<String> answers = gi.getAnswers();
+			gap.setText(answers.hasNext() ? answers.next() : "");
+		}
 		
-		isDropDown = module.getChoiceInfos().size() > 0;
-				
-		this.currentState = getState();
-		this.isShowAnswersActive = true;
-
-		if (isDropDown) {
-			int dropDownCounter = 1;
-			for (InlineChoiceInfo choice : module.getChoiceInfos()) {
-				String id = module.getGapUniqueId() + '-' + dropDownCounter++;
-				Element elem = DOM.getElementById(id);
-				SelectElement sElem = (SelectElement) elem;
-				
-				int correctIndex = getOptionIndex(choice, choice.getAnswer());
-				if (correctIndex != -1)
-					sElem.setSelectedIndex(correctIndex + 1);
-			}
-		} else {
-			List<GapInfo> gapsInfos = module.getGapInfos();
-			for (int index = 0; index < view.getChildrenCount(); index++) {
-				TextElementDisplay gap = view.getChild(index);
-				
-				GapInfo gi = gapsInfos.get(index);
-
-				// show only 1st answer
-				Iterator<String> answers = gi.getAnswers();
-				gap.setText(answers.hasNext() ? answers.next() : "");
-			}
+		int dropDownCounter = gapsInfos.size() + 1;
+		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
+			String id = module.getGapUniqueId() + '-' + dropDownCounter++;
+			Element elem = DOM.getElementById(id);
+			SelectElement sElem = (SelectElement) elem;
+			
+			int correctIndex = getOptionIndex(choice, choice.getAnswer());
+			if (correctIndex != -1)
+				sElem.setSelectedIndex(correctIndex + 1);
 		}
 		
 		view.refreshMath();
 	}
 
 	private void hideAnswers() {
-		if (!module.isActivity() || !this.isShowAnswersActive) { return; }
+		if (!module.isActivity()) {
+			return;
+		}
 		
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			TextElementDisplay child = view.getChild(i);
+			child.reset();
 			child.removeStyleHideAnswers();
 			child.setWorkMode();
 			child.setDisabled(module.isDisabled());
 		}
 		
-		reset();
 		setState(this.currentState);
-		this.currentState = "";
 		this.isShowAnswersActive = false;
 		
-		//if () {
 		view.refreshMath();
-		//}
-		
-		for (int i = 0; i < view.getChildrenCount(); i++) {
-			TextElementDisplay child = view.getChild(i);
-			child.setDisabled(module.isDisabled());
-		}
 	}
 
-	protected void setWorkMode() {		
+	protected void setWorkMode() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		for(int i = 0; i < view.getChildrenCount(); i++) {
 			view.getChild(i).setWorkMode();
 		}
@@ -242,7 +242,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	protected void setShowErrorsMode() {
-		if (this.isShowAnswersActive) {
+		if (isShowAnswers()) {
 			hideAnswers();
 		}
 		
@@ -260,6 +260,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public String getState() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		HashMap<String, String> state = new HashMap<String, String>();
 		state.put("gapUniqueId", module.getGapUniqueId());
 		state.put("values", JSONUtils.toJSONString(values));
@@ -315,8 +319,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		for (String id : values.keySet()) {
 			String value = values.get(id);
-			if (module.hasMathGaps()) {
+			if (module.hasMathGaps() && !isShowAnswersActive) {
 				module.parsedText = module.parsedText.replace("{{value:" + id + "}}", value);
+			} else if (module.hasMathGaps()) {
+				InputElement elem = DOM.getElementById(id).cast();
+				elem.setValue(value);
 			} else {
 				view.setValue(id, value);
 			}
@@ -329,14 +336,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		savedDisabledState = stateDisabled;
 		
-		if (module.hasMathGaps()) {
+		if (module.hasMathGaps() && !isShowAnswersActive) {
 			view.setHTML(module.parsedText);
-		}
+		} 
 		
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
 		
 		if (isVisible) {
-			view.show();
+			view.show(false);
 		} else {
 			view.hide();
 		}
@@ -345,6 +352,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	
 	@Override
 	public int getErrorCount() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
 
 		String enteredValue;
 		int errorCount = 0;
@@ -375,18 +385,20 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	
 	protected void reset() {
-		this.isShowAnswersActive = false;
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
 
 		if (module.isVisible())
-			view.show();
+			view.show(true);
 		else
 			view.hide();
 		
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			TextElementDisplay child = view.getChild(i);
 			child.reset();
-			child.setDisabled(module.isDisabled());
 			child.removeStyleHideAnswers();
+			child.setDisabled(module.isDisabled());
 		}
 
 		if (enteredText != null) {
@@ -399,11 +411,17 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		consumedItems.clear();
 		values.clear();
 		updateScore();
+		
+		this.currentState = "";
 	}
 
 
 	@Override
 	public int getMaxScore() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		int maxScore = 0;
 		
 		if (module.isActivity()) {
@@ -420,6 +438,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public int getScore() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		int score = 0;
 
 		if (module.isActivity()) {
@@ -802,6 +824,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				}, 100);
 				
 				dfd.promise().done(function (_element) {
+					console.log("created");
 					x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
 					$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook);
 				});
@@ -816,10 +839,17 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 	
 	private Element getView(){
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		return view.getElement();
 	}
 	
 	private String getGapText(int index) {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
 		
 		if(view != null && index <= view.getChildrenCount()){
 			return view.getChild(index-1).getTextValue();
@@ -829,30 +859,50 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 	
 	private void markGapAsCorrect(int index) {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		if (view != null && index <= view.getChildrenCount()) {
 			view.getChild(index-1).markGapAsCorrect();
 		}
 	}
 	
 	private void markGapAsWrong(int index) {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		if(view != null && index <= view.getChildrenCount()) {
 			view.getChild(index-1).markGapAsWrong();
 		}
 	}	
 	
 	private void markGapAsEmpty(int index) {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		if(view != null && index <= view.getChildrenCount()) {
 			view.getChild(index-1).markGapAsEmpty();
 		}
 	}
 	
 	private void enableGap(int index) {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		if(view != null && index <= view.getChildrenCount()){
 			view.getChild(index-1).setDisabled(false);
 		}
 	}
 
 	private void enableAllGaps() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		for (int index = 0; index < view.getChildrenCount(); index++) {
 			view.getChild(index).setDisabled(false);
 		}
@@ -860,22 +910,38 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 
 	private void disableGap(int index) {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		if(view != null && index <= view.getChildrenCount()){
 			view.getChild(index-1).setDisabled(true);
 		}
 	}
 
 	private void disableAllGaps() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		for (int index = 0; index < view.getChildrenCount(); index++) {
 			view.getChild(index).setDisabled(true);
 		}
 	}
 
     private boolean isActivity () {
+    	if (isShowAnswers()) {
+			hideAnswers();
+		}
+
         return module.isActivity();
     }
 
 	private boolean isAttempted() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		boolean isAllAttempted = true;
 		for (int index = 0; index < view.getChildrenCount(); index++) {
 			if (!view.getChild(index).isAttempted()) {
@@ -888,18 +954,30 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 
 	private void setText(String text) {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		enteredText = text;
 		view.setHTML(text);
 	}
 
 	private void show() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		isVisible = true;
 		if(view != null) {
-			view.show();
+			view.show(true);
 		}
 	}
 	
 	private void hide() {
+		if (isShowAnswers()) {
+			hideAnswers();
+		}
+
 		isVisible = false;
 		if(view != null) {
 			view.hide();

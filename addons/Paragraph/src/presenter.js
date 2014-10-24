@@ -2,11 +2,33 @@ function AddonParagraph_create() {
     var presenter = function () {};
     var editorID;
     var editorDOM;
+    var isVisible;
+
+    presenter.executeCommand = function(name, params) {
+        if (!presenter.configuration.isValid) { return; }
+
+        var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide,
+            'isVisible': presenter.isVisible
+        };
+
+        Commands.dispatch(commands, name, params, presenter);
+    };
 
     presenter.DEFAULTS = {
         TOOLBAR: 'bold italic underline numlist bullist alignleft aligncenter alignright alignjustify',
         FONT_FAMILY: 'Verdana,Arial,Helvetica,sans-serif',
         FONT_SIZE: '11px'
+    };
+
+    presenter.setVisibility = function(isVisible) {
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        if (isVisible) {
+            presenter.$view.find(".paragraph-wrapper").show();
+        } else {
+            presenter.$view.find(".paragraph-wrapper").hide();
+        }
     };
 
     presenter.createPreview = function(view, model) {
@@ -19,6 +41,20 @@ function AddonParagraph_create() {
         presenter.initializeEditor(view, model);
     };
 
+    presenter.validateToolbar = function(controls) {
+        if (!controls) {
+            return presenter.DEFAULTS.TOOLBAR;
+        }
+        var allowedButtons = 'newdocument bold italic underline strikethrough alignleft aligncenter '+
+                             'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
+                             'bullist numlist outdent indent blockquote undo redo '+
+                             'removeformat subscript superscript forecolor backcolor |'.split(' ');
+        controls = controls.split(' ');
+        return controls.filter(function(param){
+            return allowedButtons.indexOf(param) != -1
+        }).join(' ');
+    }
+
     /**
      * Parses model and set settings to default values if either of them is empty
      *
@@ -29,6 +65,7 @@ function AddonParagraph_create() {
         var fontFamily = model['Default font family'],
             fontSize = model['Default font size'],
             isToolbarHidden = ModelValidationUtils.validateBoolean(model['Hide toolbar']),
+            toolbar = presenter.validateToolbar(model['Custom toolbar']),
             height = model.Height,
             hasDefaultFontFamily = false,
             hasDefaultFontSize = false;
@@ -46,9 +83,14 @@ function AddonParagraph_create() {
         height -= !isToolbarHidden ? 37 : 2;
 
         return {
+            ID: model["ID"],
+            isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            isValid: true,
+
             fontFamily: fontFamily,
             fontSize: fontSize,
             isToolbarHidden: isToolbarHidden,
+            toolbar: toolbar,
             textAreaHeight: height,
             hasDefaultFontFamily: hasDefaultFontFamily,
             hasDefaultFontSize: hasDefaultFontSize,
@@ -72,19 +114,27 @@ function AddonParagraph_create() {
 
         presenter.configuration = presenter.parseModel(model);
 
+        var plugins = undefined;
+        if (presenter.configuration.toolbar.indexOf('forecolor') > -1 ||
+            presenter.configuration.toolbar.indexOf('backcolor') > -1 ) {
+            plugins = "textcolor";
+        }
         tinymce.init({
+            plugins: plugins,
             selector : selector,
             width: model['Width'],
             height: presenter.configuration.textAreaHeight,
             statusbar: false,
             menubar: false,
-            toolbar: presenter.DEFAULTS.TOOLBAR,
+            toolbar: presenter.configuration.toolbar,
             oninit: presenter.onInit,
             content_css: presenter.configuration.content_css,
             setup : function(editor) {
                 editor.on("NodeChange", presenter.onNodeChange);
             }
         });
+
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.setStyles = function () {
@@ -109,6 +159,17 @@ function AddonParagraph_create() {
             }
     };
 
+    presenter.setIframeHeight = function(){
+        var $editor = presenter.$view.find('#' + editorID + '_ifr'),
+            editorHeight = presenter.$view.height();
+
+        if (!presenter.configuration.isToolbarHidden) {
+            editorHeight -=  presenter.$view.find('.mce-toolbar').height();
+        }
+
+        $editor.height(editorHeight);
+    };
+
     presenter.onInit = function() {
         editorID = tinymce.activeEditor.id;
         editorDOM = tinymce.activeEditor.dom;
@@ -126,11 +187,15 @@ function AddonParagraph_create() {
         tinyMCE.activeEditor.dom.loadCSS(stylesheetFullPath);
 
         presenter.setStyles();
-        
+
         if (presenter.configuration.state !== undefined) {
         	tinymce.get(editorID).setContent(presenter.configuration.state, {format : 'raw'});
         }
-        $('#' + editorID + '_ifr').height(presenter.configuration.textAreaHeight);
+
+        presenter.setIframeHeight();
+
+        presenter.$view.find('.mce-toolbar').on('resize', presenter.setIframeHeight);
+
         presenter.$view.find('.mce-container.mce-panel.mce-tinymce').css('border',0);
     };
 
@@ -143,10 +208,9 @@ function AddonParagraph_create() {
     };
 
     presenter.getState = function() {
-       if (tinymce.get(editorID) != undefined && tinymce.get(editorID).hasOwnProperty("id")) {
+        if (tinymce.get(editorID) != undefined && tinymce.get(editorID).hasOwnProperty("id")) {
             return tinymce.get(editorID).getContent({format : 'raw'});
-        }
-        else {
+        } else {
             return '';
         }
     };
@@ -154,14 +218,27 @@ function AddonParagraph_create() {
     presenter.setState = function(state) {
     	if (editorID !== undefined) {
     		tinymce.get(editorID).setContent(state, {format : 'raw'});
-    	}
-    	else {
+    	} else {
     		presenter.configuration.state = state;
     	}
     };
 
     presenter.reset = function() {
         tinymce.get(editorID).setContent('');
+    };
+
+    presenter.show = function() {
+        isVisible = true;
+        presenter.setVisibility(true);
+    };
+
+    presenter.hide = function() {
+        isVisible = false;
+        presenter.setVisibility(false);
+    };
+
+    presenter.isVisible = function() {
+        return isVisible;
     };
 
     return presenter;
