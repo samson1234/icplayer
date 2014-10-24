@@ -200,7 +200,7 @@ function AddonHierarchical_Lesson_Report_create() {
             }
 
             if (presenter.configuration.showMaxScoreField) {
-                var className = (score.score === score.maxScore && score.maxScore !== 0 ? "page-max-score" : "page-non-max-score");
+                var className = (points === score.maxScore && score.maxScore !== 0 ? "page-max-score" : "page-non-max-score");
                 $("<td></td>").appendTo($(row)).addClass("hier_report-" + className);
             }
         } else {
