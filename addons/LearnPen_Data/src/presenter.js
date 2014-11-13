@@ -1,28 +1,35 @@
 function AddonLearn_Pen_Data_create() {
 
+    function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
+
+    function getCorrectObject(val) { return { isValid: true, value: val }; }
+
+    function getCurrentTime() {
+        function fillZeros(val) {
+            return (String(val).length === 1 ? '0' : '') + val;
+        }
+
+        var result = 'HH:MM:SS DD/MN/YYYY';
+
+        var date = new Date();
+
+        result.replace('HH', fillZeros(date.getHours()));
+        result.replace('MM', fillZeros(date.getMinutes()));
+        result.replace('SS', fillZeros(date.getSeconds()));
+
+        result.replace('DD', fillZeros(date.getDate()));
+        result.replace('MN', fillZeros(date.getMonth() + 1));
+        result.replace('YYYY', date.getFullYear() + '');
+
+        return result;
+    }
+
     var presenter = function() {};
 
-    presenter.isWorking = false;
-
-    presenter.setPlayerController = function (controller) {
-        presenter.playerController = controller;
-        presenter.presentation = controller.getPresentation();
-        presenter.commander = controller.getCommands();
-        presenter.pageCount = controller.getPresentation().getPageCount();
-        presenter.currentIndex = controller.getCurrentPageIndex();
-    };
-
-    presenter.createGraph = function(type, labels, colors, data) {
-        switch (type) {
-            case 'GAUGE': createGauge(labels, colors, data); break;
-            case 'H_P_BAR': createHorizontalProgressBar(labels, colors, data); break;
-            case 'BARS': createBars(labels, colors, data); break;
-            case 'H_BARS': createHBars(labels, colors, data); break;
-            case 'LINE': createLine(labels, colors, data); break;
-            case 'RADAR': createRadar(labels, colors, data); break;
-            case 'ROSE': createRose(labels, colors, data); break;
-            default: break;
-        }
+    presenter.data = {
+        isWorking: false,
+        isLearnPenOn: false,
+        timeOut: 0 // TODO to jest w ogóle potrzebne?
     };
 
     presenter.hexToRGBA = function(hex, opacity) {
@@ -31,6 +38,34 @@ function AddonLearn_Pen_Data_create() {
             b = parseInt(hex.substring(5,7), 16);
 
         return 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
+    };
+
+    function setVisibility(is_visible) {
+        presenter.$view.css("visibility", is_visible ? "visible" : "hidden");
+    }
+
+    // TODO Sprawdzić czy dobrze wykrywa LearnPen'a
+    function getDataFromSmartPen() {
+        if (window.LearnPen) {
+            presenter.data.isLearnPenOn = true;
+            return {
+                a: parseInt(window.LearnPen.getA(), 10),
+                b: parseInt(window.LearnPen.getB(), 10),
+                c: parseInt(window.LearnPen.getC(), 10),
+                p: parseInt(window.LearnPen.getD(), 10)
+            }
+        }
+
+        presenter.data.isLearnPenOn = false;
+        return { a: 0, b: 0, c: 0, p: 0 };
+    }
+
+    presenter.setPlayerController = function (controller) {
+        presenter.playerController = controller;
+        presenter.presentation = controller.getPresentation();
+        presenter.commander = controller.getCommands();
+        presenter.pageCount = controller.getPresentation().getPageCount();
+        presenter.currentIndex = controller.getCurrentPageIndex();
     };
 
     presenter.colorNameToHex = function(color) {
@@ -90,359 +125,154 @@ function AddonLearn_Pen_Data_create() {
             };
         }(wait, times);
 
-        if (presenter.isWorking) presenter.time_out = setTimeout(interv, wait);
+        if (presenter.data.isWorking) presenter.data.timeOut = setTimeout(interv, wait);
     }
 
-    presenter.CHART_TYPE = {
-        'Gauge': 'GAUGE',
-        'Horizontal progress bar': 'H_P_BAR',
-        'Bars': 'BARS',
-        'Horizontal Bars': 'H_BARS',
-        'Line': 'LINE',
-        'Radar': 'RADAR',
-        'Rose': 'ROSE',
-        DEFAULT: 'Gauge'
-    };
-
+    // TODO zweryfikować czy to działa
     presenter.MODE = {
-        'All': 'ALL',
-        'Sum from squeezes': 'SUM_S',
-        'Sum from squeezes + pressure': 'SUM_S_P',
-        'Max from squeezes': 'MAX_S',
-        'Max from squeezes + pressure': 'MAX_S_P',
-        'Pressure': 'PRESSURE',
-        'Squeeze A': 'SQUEEZE_A',
-        'Squeeze B': 'SQUEEZE_B',
-        'Squeeze C': 'SQUEEZE_C',
-        DEFAULT: 'All'
+        Pressure: "PRESSURE",
+        Squeeze: "SQUEEZE",
+        DEFAULT: "Pressure"
     };
-
-    function getDataFromSmartPen() {
-        if (window.SmartPen === undefined) {
-            return [
-                Math.floor((Math.random()*1000)+1),
-                Math.floor((Math.random()*1000)+1),
-                Math.floor((Math.random()*1000)+1),
-                Math.floor((Math.random()*1000)+1)
-            ];
-        } else {
-            return [
-                parseInt(window.SmartPen.getR(), 10),
-                parseInt(window.SmartPen.getG(), 10),
-                parseInt(window.SmartPen.getB(), 10),
-                parseInt(window.SmartPen.getP(), 10)
-            ];
-        }
-    }
-
-    function reDrawChart() {
-        try {
-            RGraph.Clear(document.getElementById(presenter.configuration.id));
-            var data = getDataFromSmartPen();
-            presenter.createGraph(presenter.configuration.type, presenter.configuration.labels, presenter.configuration.colors, data);
-        } catch(err) {
-            //console.log(err);
-        }
-    }
-
-    presenter.evalData = function(data) {
-        var parsedMax, parsedData, tmpData = [].concat(data);
-
-        switch(presenter.configuration.mode) {
-            case 'ALL': parsedMax = 4000; parsedData = data.reduce(function (a, b) { return a + b; }, 0); break;
-            case 'SUM_S': parsedMax = 3000; tmpData.pop(); parsedData = tmpData.reduce(function (a, b) { return a + b; }, 0); break;
-            case 'SUM_S_P': parsedMax = 4000; parsedData = data.reduce(function (a, b) { return a + b; }, 0); break;
-            case 'MAX_S': parsedMax = 1000; tmpData.pop(); parsedData = tmpData.reduce(function (a, b) { return a > b ? a : b; }, 0); break;
-            case 'MAX_S_P': parsedMax = 1000; parsedData = data.reduce(function (a, b) { return a > b ? a : b; }, 0); break;
-            case 'PRESSURE': parsedMax = 1000; parsedData = data[3]; break;
-            case 'SQUEEZE_A': parsedMax = 1000; parsedData = data[0]; break;
-            case 'SQUEEZE_B': parsedMax = 1000; parsedData = data[1]; break;
-            case 'SQUEEZE_C': parsedMax = 1000; parsedData = data[2]; break;
-            default: parsedMax = 4000; parsedData = data.reduce(function (a, b) { return a + b; }, 0); break;
-        }
-
-        return {
-            max: parsedMax,
-            data: parsedData
-        }
-    };
-
-    function createGauge(labels, colors, data) {
-        var values = presenter.evalData(data);
-
-        var gauge = new RGraph.Gauge(presenter.configuration.id, 0, values.max, values.data)
-            .Set('title.top', labels[0])
-            .Set('title.bottom', labels[1])
-            .Set('labels.count', 0)
-
-            .Set('background.color', colors[0])
-            .Set('title.top.color', colors[1])
-            .Set('title.bottom.color', colors[1])
-            .Set('green.color', colors[2])
-            .Set('yellow.color', colors[3])
-            .Set('red.color', colors[4])
-
-            .Set('tickmarks.small', 10)
-            .Set('shadow', true);
-
-        if (colors[5] !== '') {
-            gauge
-                .Set('needle.color', [colors[5], '', '', ''])
-                .Set('centerpin.color', colors[5])
-        }
-        gauge.Draw();
-    }
-
-    function createHorizontalProgressBar(labels, colors, data) {
-        var values = presenter.evalData(data);
-
-        var hpb = new RGraph.HProgress(presenter.configuration.id, 0, values.max, values.data)
-            .Set('title', labels[0])
-            .Set('labels.count', 1)
-            .Set('labels.axes', '')
-
-            .Set('gutter.top', 45)
-            .Set('gutter.bottom', 45)
-
-            .Set('tickmarks', true)
-            .Set('arrows', false)
-            .Set('bevel', true)
-            .Set('shadow', true);
-
-        if (colors[0] !== '') hpb.Set('background.color', colors[0]);
-        //if (colors[1] !== '') hpb.Set('title.color', colors[1]);
-        if (colors[2] !== '') hpb.Set('colors', colors.slice(2, 3));
-
-        hpb.Draw();
-    }
-
-    function createBars(labels, colors, data) {
-        var bars = new RGraph.Bar(presenter.configuration.id, data)
-            .Set('labels', labels)
-
-            .Set('colors.sequential', 'true')
-
-            .Set('background.grid', false)
-            .Set('ymax', 1000)
-            .Set('numyticks', 4)
-            .Set('ylabels.count', 0);
-
-        if (colors[0] !== '') bars.Set('background.color', colors[0]);
-        if (colors[1] !== '') bars.Set('text.color', colors[1]);
-        if (colors[2] !== '' || colors[3] !== '' || colors[4] !== '' || colors[5] !== '') bars.Set('colors', colors.slice(2));
-
-        bars.Draw();
-    }
-
-    function createHBars(labels, colors, data) {
-        var h_bars = new RGraph.HBar(presenter.configuration.id, data)
-            .Set('labels', labels)
-
-            .Set('colors.sequential', 'true')
-
-            .Set('background.grid', false)
-            .Set('xmax', 1000)
-            .Set('numyticks', 4)
-            .Set('xlabels.count', 0);
-
-        if (colors[0] !== '') h_bars.Set('background.color', colors[0]);
-        if (colors[1] !== '') h_bars.Set('text.color', colors[1]);
-        if (colors[2] !== '' || colors[3] !== '' || colors[4] !== '' || colors[5] !== '') h_bars.Set('colors', colors.slice(2));
-
-        h_bars.Draw();
-    }
-
-    function createLine(labels, colors, data) {
-        var line = new RGraph.Line(presenter.configuration.id, data)
-            .Set('labels', labels)
-            .Set('background.grid', false)
-            .Set('colors.sequential', 'true')
-            .Set('linewidth', 2)
-            .Set('filled', true)
-            .Set('hmargin', 5)
-            .Set('ymax', 1000)
-            .Set('ylabels.count', 0)
-            .Set('shadow', true);
-
-        if (colors[0] !== '') line.Set('background.color', colors[0]);
-        if (colors[1] !== '') line.Set('text.color', colors[1]);
-        if (colors[2] !== '' || colors[3] !== '' || colors[4] !== '' || colors[5] !== '') line.Set('colors', colors.slice(2));
-
-        line.Draw();
-    }
-
-    function createRadar(labels, colors, data) {
-        var radar = new RGraph.Radar(presenter.configuration.id, data)
-            .Set('labels', labels)
-            .Set('colors.sequential', 'true')
-            .Set('background.circles', true)
-            .Set('circle', 20)
-            .Set('ymax', 1000);
-
-        if (colors[0] !== '') radar.Set('background.fill', colors[0]);
-        if (colors[1] !== '') radar.Set('text.color', colors[1]);
-        if (colors[2] !== '') radar.Set('colors', [presenter.hexToRGBA(colors[2], 0.5)]);
-
-        radar.Draw();
-    }
-
-    function createRose(labels, colors, data) {
-        var rose = new RGraph.Rose(presenter.configuration.id, data)
-            .Set('labels', labels)
-            .Set('labels.axes', '')
-            .Set('margin', 5)
-            .Set('colors.sequential', true)
-            .Set('background.grid', false)
-            .Set('ymax', 1000)
-            .Set('labels.count', 0);
-
-        if (colors[0] !== '') rose.Set('background.grid.color', colors[0]);
-        if (colors[1] !== '') rose.Set('text.color', colors[1]);
-        if (colors[2] !== '' || colors[3] !== '' || colors[4] !== '' || colors[5] !== '') rose.Set('colors', colors.slice(2));
-
-        rose.Draw();
-    }
 
     presenter.ERROR_CODES = {
-        C01: 'One of the colors\' property has wrong length in hex format, it should be # and then 6 digits [0 - F]',
-        C02: 'One of the colors\' property has wrong color name',
+        I01: 'Property icon cannot by empty',
 
-        T01: 'Property Refresh time cannot be lower then 50ms and higher then 2000',
+        BGC01: 'Wrong color format in Background Color property',
 
-        M01: 'Mode different then "all" is available only for graphs: "Gauge" and "Horizonal prograss bar"',
+        C01: 'Property Steps and Colors has to by 2 - 7 items long',
+        C02: 'Wrong color format in Colors property',
 
-        S01: 'Values of width and height cannot be lower then 100px'
+        T01: 'Property Refresh time cannot be lower then 50 and higher then 2000',
+        T02: 'Property Refresh time has to be numeric'
     };
 
-    function getErrorObject(errorCode) {
-        return { is_valid: false, errorCode: errorCode };
+    // TODO - parsery myszą być przypisane do prezentera?
+    presenter.validateIcon = function(icon) {
+        if (ModelValidationUtils.isStringEmpty(icon)) {
+            return getErrorObject('I01');
+        }
+
+        return getCorrectObject(icon);
+    };
+
+    function validateColor(color) {
+        if (color[0] === '#') {
+            if (color.length !== 7 && color.length !== 4 || !/^#[0-9a-fA-F]+$/.test(color)) return false;
+        } else {
+            color = presenter.colorNameToHex(color);
+            if (!color) return false;
+        }
+
+        return color;
     }
 
-    presenter.validateModel = function(model) {
-
-        var labels = [];
-        labels.push(model['1st label']);
-        labels.push(model['2nd label']);
-        labels.push(model['3rd label']);
-        labels.push(model['4th label']);
-
-        var colors = [];
-        colors.push(model['Background color']);
-        colors.push(model['Text color']);
-        colors.push(model['1st color']);
-        colors.push(model['2nd color']);
-        colors.push(model['3rd color']);
-        colors.push(model['4th color']);
-        var parsedColors = presenter.parseColors(colors);
-        if (!parsedColors.is_valid) {
-            return returnErrorObject(parsedColors.errorCode);
+    presenter.validateBGColor = function(color) {
+        if (ModelValidationUtils.isStringEmpty(color)) {
+            return getCorrectObject("#fff"); // white is default
         }
 
-        var parsedTime = presenter.parseTime(model['Refresh time']);
-        if (!parsedTime.is_valid) {
-            return returnErrorObject(parsedTime.errorCode);
-        }
+        color = validateColor(color);
 
-        var type = ModelValidationUtils.validateOption(presenter.CHART_TYPE, model['Chart type']);
+        if (!color)
+            return getErrorObject('BGC01');
 
-        var parsedMode = presenter.parseMode(ModelValidationUtils.validateOption(presenter.MODE, model['Mode']), type);
-        if (!parsedMode.is_valid) {
-            return returnErrorObject(parsedMode.errorCode);
-        }
-
-        return {
-            id: model.ID + '_' + presenter.currentIndex + '_canv',
-            is_disable: ModelValidationUtils.validateBoolean(model['Is Disable']),
-            type: type,
-            labels: labels,
-            colors: parsedColors.value, // [0] - background, [1] - text, rest - variously
-            refresh_time: parsedTime.value,
-            mode: parsedMode.value,
-
-            is_visible: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            is_valid: true
-        };
+        return getCorrectObject(color);
     };
 
-    presenter.parseColors = function(colors) {
-        for (var i in colors) {
-            if (colors[i] !== '') {
-                if (colors[i][0] === '#' && !(colors[i].length === 7)) {
-                    return returnErrorObject('C01');
-                }
-
-                if (colors[i][0] !== '#') {
-                    if (!presenter.colorNameToHex(colors[i])) {
-                        return returnErrorObject('C02');
-                    } else {
-                        colors[i] = presenter.colorNameToHex(colors[i]);
-                    }
-                }
-
-                if (!colors[i]) {
-                    return returnErrorObject('C02');
-                }
-            }
+    // TODO kazdy kolor musi byc inny
+    presenter.validateColors = function(colors) {
+        if (ModelValidationUtils.isStringEmpty(colors)) {
+            return getCorrectObject([ // default:
+                '#c90707',            // red
+                '#ff9305',            // orange
+                '#ffdc08',            // yellow
+                '#03c6ff',            // blue
+                '#00dd2f'             // green
+            ]);
         }
 
-        return {
-            value: colors,
-            is_valid: true
-        };
+        colors = colors.split('\n');
+
+        if (colors.length > 7 || colors.length < 2) {
+            return getErrorObject('C01');
+        }
+
+        colors = colors.map(function(c) { return validateColor(c) });
+
+        if (colors.indexOf(false) !== -1) {
+            return getErrorObject('C02');
+        }
+
+        return getCorrectObject(colors);
     };
 
-    presenter.parseTime = function(time) {
-        time = time || 1000;
+    presenter.validateTime = function(time) {
+        if (ModelValidationUtils.isStringEmpty(time)) {
+            return getCorrectObject(1000);
+        }
+
+        if (!/^[0-9]+$/.test(time)) {
+            return getErrorObject('T02');
+        }
+
         time = parseInt(time, 10);
 
         if (time < 50 || time > 2000) {
-            return returnErrorObject('T01');
+            return getErrorObject('T01');
         }
 
-        return {
-            value: time,
-            is_valid: true
-        }
+        return getCorrectObject(time);
     };
 
-    presenter.parseMode = function(mode, type) {
-        if (mode !== 'ALL' && type !== 'GAUGE' && type !== 'H_P_BAR') {
-            return returnErrorObject('M01');
-        }
+    function createGraph() {
+
+    }
+
+    presenter.validateModel = function(model) {
+        var validatedIcon = presenter.validateIcon(model.icon);
+        if (!validatedIcon.isValid) return getErrorObject(validatedIcon.errorCode);
+
+        var validatedBGColor = presenter.validateBGColor(model.backgroundColor);
+        if (!validatedBGColor.isValid) return getErrorObject(validatedBGColor.errorCode);
+
+        var validatedColors = presenter.validateColors(model.colors);
+        if (!validatedColors.isValid) return getErrorObject(validatedColors.errorCode);
+
+        var validatedTime = presenter.validateTime(model.refreshTime);
+        if (!validatedTime.isValid) return getErrorObject(validatedTime.errorCode);
 
         return {
-            value: mode,
-            is_valid: true
-        }
+            isDisable: ModelValidationUtils.validateBoolean(model.isDisable),
+            sensor: ModelValidationUtils.validateOption(presenter.MODE, model.sensor),
+            icon: validatedIcon.value,
+            backgroundColor: validatedBGColor.value,
+            colors: validatedColors.value,
+            refreshTime: validatedTime.value,
+
+            id: model["ID"],
+            isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
+            isValid: true
+        };
     };
 
     presenter.presenterLogic = function(view, model, isPreview) {
         presenter.$view = $(view);
+        console.log(model);
+        presenter.configuration = presenter.validateModel(model);
+        if (!presenter.configuration.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+            return false;
+        }
 
-//        presenter.configuration = presenter.validateModel(model);
-//        if (!presenter.configuration.is_valid) {
-//            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
-//            return false;
-//        }
-//
-//        presenter.$chart = presenter.$view.find('.chart');
-//        presenter.$chart.attr('id', presenter.configuration.id);
-//        presenter.$chart[0].width = presenter.$chart.parent().width();
-//        presenter.$chart[0].height = presenter.$chart.parent().height();
-//
-//        if (presenter.$chart.parent().width() < 100 || presenter.$chart.parent().height() < 100) {
-//            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, 'S01');
-//            return false;
-//        }
-//
-//        presenter.createGraph(presenter.configuration.type, presenter.configuration.labels, presenter.configuration.colors, [0, 0, 0, 0]);
-//
-//        if (!isPreview && !presenter.configuration.is_disable && presenter.configuration.is_visible) {
-//            presenter.isWorking = true;
-//            interval(reDrawChart, presenter.configuration.refresh_time);
-//        }
-//
-//        presenter.setVisibility(presenter.configuration.is_visible);
+        createGraph();
+
+        if (!isPreview && !presenter.configuration.isDisable) {
+            presenter.data.isWorking = true;
+            //interval(reDrawChart, presenter.configuration.refreshTime);
+        }
+
+        setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.run = function(view, model) {
@@ -453,8 +283,14 @@ function AddonLearn_Pen_Data_create() {
         presenter.presenterLogic(view, model, true);
     };
 
-    presenter.setVisibility = function(is_visible) {
-        presenter.$view.css("visibility", is_visible ? "visible" : "hidden");
+    // TODO - dodać też do commands
+    presenter.getHistory = function() {
+        return {
+            start: getCurrentTime(),
+            values: [{}],
+            end: getCurrentTime(),
+            refreshTime: presenter.configuration.refreshTime
+        };
     };
 
 //    presenter.setShowErrorsMode = function() { };
@@ -465,12 +301,12 @@ function AddonLearn_Pen_Data_create() {
 //    presenter.getScore = function() { return 0; };
 
     presenter.getState = function() {
-        presenter.isWorking = true;
+        presenter.data.isWorking = true;
     };
 
     presenter.setState = function() {
-        clearTimeout(presenter.time_out);
-        presenter.isWorking = false;
+        clearTimeout(presenter.data.timeOut);
+        presenter.data.isWorking = false;
     };
 
     return presenter;

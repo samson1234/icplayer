@@ -1,63 +1,135 @@
 TestCase("[Smart_Pen_Data] Model validation", {
 
     setUp: function() {
-        this.presenter = AddonSmart_Pen_Data_create();
+        this.presenter = AddonLearn_Pen_Data_create();
 
         this.model = {
-            'Is Disable': 'false',
-            'Chart type': 'Gauge',
-            '1st label': 'a',
-            '2nd label': 'b',
-            '3rd label': 'c',
-            '4th label': 'p',
-            'Background color': '#000000',
-            'Text color': 'black',
-            '1st color': '#000000',
-            '2nd color': '#000000',
-            '3rd color': '#000000',
-            '4th color': '#000000',
-            'Refresh time': '1000',
-            'Mode': 'All'
+            ID: "Learn_Pen_Data1",
+            "Is Visible": "True",
+            isDisable: "",
+            sensor: "",
+            icon: "/file/serve/6171575946575872",
+            backgroundColor: "",
+            colors: "",
+            refreshTime: ""
         };
     },
 
-    'test wrong color name' : function() {
-        this.model['Background color'] = '666';
+    'test proper model': function() {
         var validatedModel = this.presenter.validateModel(this.model);
-        assertFalse(validatedModel.is_valid);
-        assertEquals('C02', validatedModel.errorCode);
+
+        assertEquals("Learn_Pen_Data1", validatedModel.id);
+        assertTrue(validatedModel.isVisible);
+        assertFalse(validatedModel.isDisable);
+        assertEquals("PRESSURE", validatedModel.sensor);
+        assertEquals("/file/serve/6171575946575872", validatedModel.icon);
+        assertEquals("#fff", validatedModel.backgroundColor);
+        assertEquals(['#c90707','#ff9305','#ffdc08','#03c6ff','#00dd2f'], validatedModel.colors);
+        assertEquals(1000, validatedModel.refreshTime);
     },
 
-    'test to low and too high Refresh time value' : function() {
-        this.model['Refresh time'] = 49;
+    'test empty icon property': function() {
+        this.model.icon = "";
         var validatedModel = this.presenter.validateModel(this.model);
-        assertFalse(validatedModel.is_valid);
-        assertEquals('T01', validatedModel.errorCode);
 
-        this.model['Refresh time'] = 2001;
-        var validatedModel = this.presenter.validateModel(this.model);
-        assertFalse(validatedModel.is_valid);
-        assertEquals('T01', validatedModel.errorCode);
+        assertFalse(validatedModel.isValid);
+        assertEquals("I01", validatedModel.errorCode);
     },
 
-    'test wrong type and mode combination' : function() {
-        this.model['Chart type'] = 'Bars';
-        this.model['Mode'] = 'Sum from squeezes';
+    'test wrong background color 1': function() {
+        this.model.backgroundColor = "#12345";
         var validatedModel = this.presenter.validateModel(this.model);
-        assertFalse(validatedModel.is_valid);
-        assertEquals('M01', validatedModel.errorCode);
 
-        this.model['Chart type'] = 'Radar';
-        this.model['Mode'] = 'Max from squeezes + pressure';
-        var validatedModel = this.presenter.validateModel(this.model);
-        assertFalse(validatedModel.is_valid);
-        assertEquals('M01', validatedModel.errorCode);
+        assertFalse(validatedModel.isValid);
+        assertEquals("BGC01", validatedModel.errorCode);
+    },
 
-        this.model['Chart type'] = 'Rose';
-        this.model['Mode'] = 'Squeeze C';
+    'test wrong background color 2': function() {
+        this.model.backgroundColor = "#1234567";
         var validatedModel = this.presenter.validateModel(this.model);
-        assertFalse(validatedModel.is_valid);
-        assertEquals('M01', validatedModel.errorCode);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("BGC01", validatedModel.errorCode);
+    },
+
+    'test wrong background color 3': function() {
+        this.model.backgroundColor = "maka paka color";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("BGC01", validatedModel.errorCode);
+    },
+
+    'test too many colors': function() {
+        this.model.colors = "red\ngreen\nblue\npink\nyellow\ngrey\nblack\nwhite";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("C01", validatedModel.errorCode);
+    },
+
+    'test too not enough colors': function() {
+        this.model.colors = "red";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("C01", validatedModel.errorCode);
+    },
+
+    'test empty line colors': function() {
+        this.model.colors = "red\n\n";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("C02", validatedModel.errorCode);
+    },
+
+    'test colors with wrong color format 1': function() {
+        this.model.colors = "red\ngreen\n#12345";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("C02", validatedModel.errorCode);
+    },
+
+    'test colors with wrong color format 2': function() {
+        this.model.colors = "red\ngreen\n#12345";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("C02", validatedModel.errorCode);
+    },
+
+    'test colors with wrong color format 3': function() {
+        this.model.colors = "red\ngreen\n#12345";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("C02", validatedModel.errorCode);
+    },
+
+    'test refresh time below 50': function() {
+        this.model.refreshTime = "2001";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("T01", validatedModel.errorCode);
+    },
+
+    'test refresh time over 2000': function() {
+        this.model.refreshTime = "49";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("T01", validatedModel.errorCode);
+    },
+
+    'test non-numeric refresh time property': function() {
+        this.model.refreshTime = "numerek 100";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("T02", validatedModel.errorCode);
     }
 
 });

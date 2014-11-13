@@ -1,18 +1,12 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id="Smart_Pen_Data" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+<addon id="Learn_Pen_Data" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="Is disable" type="boolean" />
-        <property name="Sensor" type="{pressure, squeeze}" />
-
-        <property name="Icon" type="file" />
-        <property name="Background color" type="string" />
-
-        <property name="Steps and colors" type="list">
-            <property name="Color" type="string" />
-            <property name="Step" type="string" />
-        </property>
-
-        <property name="Refresh time" type="string" />
+        <property name="isDisable" displayName="Is Disable" type="boolean" />
+        <property name="sensor" displayName="Sensor" type="{Pressure, Squeeze}" />
+        <property name="icon" displayName="Icon" type="file" />
+        <property name="backgroundColor" displayName="Background Color" type="string" />
+        <property name="colors" displayName="Step's Colors" type="text" />
+        <property name="refreshTime" displayName="Refresh Time (ms)" type="string" />
     </model>
 </addon>
