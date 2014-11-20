@@ -229,6 +229,21 @@ function AddonMath_create() {
         }
     };
 
+    presenter.isGapAttempted = function (gapIdentifier) {
+        var decodedReference = presenter.decodeModuleReference(gapIdentifier);
+
+        if (!decodedReference.isValid) return undefined;
+
+        try {
+            var textModule = presenter.getModule(decodedReference.moduleID);
+            if (!textModule) return undefined;
+
+            return textModule.isGapAttempted(decodedReference.gapIndex);
+        } catch (exception) {
+            return undefined;
+        }
+    };
+
     presenter.convertExpression = function (expression, variables) {
         var convertedExpression = 'this.result = ' + expression,
             expressionVariables = presenter.selectVariablesFromExpression(expression, variables), i;
@@ -364,7 +379,6 @@ function AddonMath_create() {
 
         if (emptyGaps.gaps.length !== 0) {
             presenter.executeEventCode(presenter.configuration.onPartialEvent);
-//            presenter.markGapsEmptiness(emptyGaps.gaps); https://www.assembla.com/spaces/lorepo/tickets/cardwall#/ticket:3856
         } else {
             var separators = presenter.configuration.separators,
                 evaluationResult = presenter.evaluateAllExpressions(presenter.configuration.expressions,
@@ -372,6 +386,18 @@ function AddonMath_create() {
                 eventCode = evaluationResult.overall ? presenter.configuration.onCorrectEvent : presenter.configuration.onIncorrectEvent;
             presenter.executeEventCode(eventCode);
         }
+    };
+
+    presenter.isAttempted = function () {
+        var notAttemptedGaps = presenter.getNotAttemptedGaps(presenter.configuration.variables),
+            isAttempted;
+        if(notAttemptedGaps.gaps.length == 0){
+            isAttempted = true;
+        }else{
+            isAttempted = false;
+        }
+
+        return isAttempted;
     };
 
     presenter.getScore = function () {
@@ -414,7 +440,8 @@ function AddonMath_create() {
         if (presenter.isErrorMode) return;
 
         var commands = {
-            'evaluate': presenter.evaluate
+            'evaluate' : presenter.evaluate,
+            'isAttempted' : presenter.isAttempted
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -438,6 +465,19 @@ function AddonMath_create() {
         }
 
         return { isValid: true, gaps: emptyGaps };
+    };
+
+    presenter.getNotAttemptedGaps = function (variables) {
+        var notAttemptedGaps = [], i, convertedVariable;
+
+        for (i = 0; i < variables.length; i++) {
+            convertedVariable = presenter.isGapAttempted(variables[i].value);
+            if (convertedVariable === undefined) return { isValid: false, errorMessage: getAlertMessage(variables[i]) };
+
+            if (convertedVariable === false) notAttemptedGaps.push(variables[i].name);
+        }
+
+        return { isValid: true, gaps: notAttemptedGaps };
     };
 
     return presenter;

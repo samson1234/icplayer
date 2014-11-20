@@ -1,3 +1,31 @@
+2014-11-20 Added Fixed position property, changed displaying rulers and fixed double page view in IWB Toolbar module
+2014-11-19 Player saves state of addons in header and footer
+2014-11-18 Fixed problem with editor preview in Hierarchical Lesson Report
+2014-11-17 Fixed problem with the second advent of Popup
+2014-11-14 Fixed issue with skipping words in Text Audio
+2014-11-13 Fixed problem with play action and ended event in Video module
+2014-11-13 Added isAllOK method and allOK event in Hangman module
+2014-11-12 New Player Commands: setNavigationPanelsAutomaticAppearance, showNavigationPanels, hideNavigationPanels
+2014-11-06 Added new property "Individual fragment playback" to Text Audio module
+2014-11-05 Fixed problem with isAttempted in Math module connected with dropdown gaps
+2014-11-04 Fixed problem with saving visibility in Paragraph and Paragraph Keyboard modules
+2014-11-04 Fixed problem with getting error Can not load page: null
+2014-11-03 Added events "playing" and "stop" to Text Audio module
+2014-11-03 Fixed setting width in IWB Toolbar module
+2014-11-03 Added isAttempted method to Math module
+2014-10-30 New Addon - Paragraph eKeyboard
+2014-10-30 Fixed propagation of onclick event in Plot module
+2014-10-29 Fixed highlighting text after clicking stop or reset in Text Audio module
+2014-10-29 Fixed working IWB Toolbar module on iframe
+2014-10-24 Added Event on select rate and method getRate() in Page Rating
+2014-10-24 Added Show Answers to Pie Chart module
+2014-10-24 Added Show Answers to Points and Lines module
+2014-10-24 Added new properties: "Row classes", "Show max score field", "Show page score" and "Disable score on pages" to Hierarchical Lesson Report
+2014-10-24 Fixed displaying IWB Toolbar in editor preview
+2014-10-23 Fixed issue with pulling up collumns reduced to 0 on mobile devices in Graph module
+2014-10-23 Fixed problem with autoplaying after click on text fragment in TextAudio module
+2014-10-23 Added playing and end events to MultiAudio
+2014-10-23 Fixed issue with zoom, note and displaying elements in IWB Toolbar module
 2014-10-23 Fixed stopwatch on mLibro windows in IWB toolbar module
 2014-10-21 Fixed problem with autoplaying in MultiAudio module
 2014-10-20 Improved Spanish translations
