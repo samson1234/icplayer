@@ -24,6 +24,14 @@ function AddonLearn_Pen_Data_create() {
         return result;
     }
 
+    function getBorderRadius(radius) {
+        return {
+            "-webkit-border-radius": radius,
+            "-moz-border-radius": radius,
+            "border-radius": radius
+        };
+    }
+
     var presenter = function() {};
 
     presenter.data = {
@@ -212,7 +220,30 @@ function AddonLearn_Pen_Data_create() {
     }
 
     function createGraph() {
+        var MARGIN = parseInt(presenter.configuration.contentSize / 10, 10); // 10% of total size
+        var ICON_SIZE = presenter.configuration.contentSize - (2 * MARGIN);
 
+        var $icon = presenter.$view.find('.icon');
+
+        $icon.css({
+            "width": ICON_SIZE + "px",
+            "height": ICON_SIZE + "px"
+        });
+
+        $icon.css(getBorderRadius(ICON_SIZE  + "px"));
+
+        $icon.css({
+            "background-image": 'url(' + presenter.configuration.icon + ')',
+            "background-repeat": "no-repeat",
+            "background-size": "100% 100%"
+        });
+
+        $icon.css("margin", MARGIN + "px");
+
+        $icon.css({
+            "border": "5px solid white",
+            "top": "-3px"
+        });
     }
 
     presenter.validateModel = function(model) {
@@ -235,6 +266,7 @@ function AddonLearn_Pen_Data_create() {
             backgroundColor: validatedBGColor.value,
             colors: validatedColors.value,
             refreshTime: validatedTime.value,
+            contentSize: Math.min(model.width, model.height),
 
             id: model["ID"],
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
@@ -244,7 +276,7 @@ function AddonLearn_Pen_Data_create() {
 
     presenter.presenterLogic = function(view, model, isPreview) {
         presenter.$view = $(view);
-        console.log(model);
+
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
