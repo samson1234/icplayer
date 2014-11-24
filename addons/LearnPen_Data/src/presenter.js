@@ -27,9 +27,7 @@ function AddonLearn_Pen_Data_create() {
     var presenter = function() {};
 
     presenter.data = {
-        isWorking: false,
-        isLearnPenOn: false,
-        timeOut: 0 // TODO to jest w ogóle potrzebne?
+        isLearnPenOn: false
     };
 
     presenter.hexToRGBA = function(hex, opacity) {
@@ -62,10 +60,6 @@ function AddonLearn_Pen_Data_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
-        presenter.presentation = controller.getPresentation();
-        presenter.commander = controller.getCommands();
-        presenter.pageCount = controller.getPresentation().getPageCount();
-        presenter.currentIndex = controller.getCurrentPageIndex();
     };
 
     presenter.colorNameToHex = function(color) {
@@ -110,25 +104,6 @@ function AddonLearn_Pen_Data_create() {
         return false;
     };
 
-    function interval(func, wait, times) {
-        var interv = function(w, t) {
-            return function() {
-                if(typeof t === "undefined" || t-->0) {
-                    setTimeout(interv, w);
-                    try {
-                        func.call(null);
-                    } catch(e) {
-                        t = 0;
-                        throw e.toString();
-                    }
-                }
-            };
-        }(wait, times);
-
-        if (presenter.data.isWorking) presenter.data.timeOut = setTimeout(interv, wait);
-    }
-
-    // TODO zweryfikować czy to działa
     presenter.MODE = {
         Pressure: "PRESSURE",
         Squeeze: "SQUEEZE",
@@ -142,19 +117,19 @@ function AddonLearn_Pen_Data_create() {
 
         C01: 'Property Steps and Colors has to by 2 - 7 items long',
         C02: 'Wrong color format in Colors property',
+        C03: 'Adjacent colors has to be different',
 
         T01: 'Property Refresh time cannot be lower then 50 and higher then 2000',
         T02: 'Property Refresh time has to be numeric'
     };
 
-    // TODO - parsery myszą być przypisane do prezentera?
-    presenter.validateIcon = function(icon) {
+    function validateIcon(icon) {
         if (ModelValidationUtils.isStringEmpty(icon)) {
             return getErrorObject('I01');
         }
 
         return getCorrectObject(icon);
-    };
+    }
 
     function validateColor(color) {
         if (color[0] === '#') {
@@ -167,9 +142,9 @@ function AddonLearn_Pen_Data_create() {
         return color;
     }
 
-    presenter.validateBGColor = function(color) {
+    function validateBGColor(color) {
         if (ModelValidationUtils.isStringEmpty(color)) {
-            return getCorrectObject("#fff"); // white is default
+            return getCorrectObject("#fff"); // white
         }
 
         color = validateColor(color);
@@ -178,10 +153,17 @@ function AddonLearn_Pen_Data_create() {
             return getErrorObject('BGC01');
 
         return getCorrectObject(color);
-    };
+    }
 
-    // TODO kazdy kolor musi byc inny
-    presenter.validateColors = function(colors) {
+    function validateColors(colors) {
+        function areAdjacentElementsDifferent(colors) {
+            for (var i=1; i<colors.length; i++)
+                if (colors[i-1] === colors[i])
+                    return false;
+
+            return true;
+        }
+
         if (ModelValidationUtils.isStringEmpty(colors)) {
             return getCorrectObject([ // default:
                 '#c90707',            // red
@@ -204,10 +186,14 @@ function AddonLearn_Pen_Data_create() {
             return getErrorObject('C02');
         }
 
-        return getCorrectObject(colors);
-    };
+        if (!areAdjacentElementsDifferent(colors)) {
+            return getErrorObject('C03');
+        }
 
-    presenter.validateTime = function(time) {
+        return getCorrectObject(colors);
+    }
+
+    function validateTime(time) {
         if (ModelValidationUtils.isStringEmpty(time)) {
             return getCorrectObject(1000);
         }
@@ -223,23 +209,23 @@ function AddonLearn_Pen_Data_create() {
         }
 
         return getCorrectObject(time);
-    };
+    }
 
     function createGraph() {
 
     }
 
     presenter.validateModel = function(model) {
-        var validatedIcon = presenter.validateIcon(model.icon);
+        var validatedIcon = validateIcon(model.icon);
         if (!validatedIcon.isValid) return getErrorObject(validatedIcon.errorCode);
 
-        var validatedBGColor = presenter.validateBGColor(model.backgroundColor);
+        var validatedBGColor = validateBGColor(model.backgroundColor);
         if (!validatedBGColor.isValid) return getErrorObject(validatedBGColor.errorCode);
 
-        var validatedColors = presenter.validateColors(model.colors);
+        var validatedColors = validateColors(model.colors);
         if (!validatedColors.isValid) return getErrorObject(validatedColors.errorCode);
 
-        var validatedTime = presenter.validateTime(model.refreshTime);
+        var validatedTime = validateTime(model.refreshTime);
         if (!validatedTime.isValid) return getErrorObject(validatedTime.errorCode);
 
         return {
@@ -268,8 +254,7 @@ function AddonLearn_Pen_Data_create() {
         createGraph();
 
         if (!isPreview && !presenter.configuration.isDisable) {
-            presenter.data.isWorking = true;
-            //interval(reDrawChart, presenter.configuration.refreshTime);
+
         }
 
         setVisibility(presenter.configuration.isVisible);
@@ -283,7 +268,12 @@ function AddonLearn_Pen_Data_create() {
         presenter.presenterLogic(view, model, true);
     };
 
-    // TODO - dodać też do commands
+    presenter.executeCommand = function(name, params) {
+        Commands.dispatch({
+            'getHistory': presenter.getHistory
+        }, name, params, presenter);
+    };
+
     presenter.getHistory = function() {
         return {
             start: getCurrentTime(),
@@ -299,15 +289,8 @@ function AddonLearn_Pen_Data_create() {
 //    presenter.getErrorCount = function() { return 0; };
 //    presenter.getMaxScore = function() { return 0; };
 //    presenter.getScore = function() { return 0; };
-
-    presenter.getState = function() {
-        presenter.data.isWorking = true;
-    };
-
-    presenter.setState = function() {
-        clearTimeout(presenter.data.timeOut);
-        presenter.data.isWorking = false;
-    };
+//    presenter.getState = function() { };
+//    presenter.setState = function() { };
 
     return presenter;
 }

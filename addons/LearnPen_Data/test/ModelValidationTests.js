@@ -108,6 +108,14 @@ TestCase("[Smart_Pen_Data] Model validation", {
         assertEquals("C02", validatedModel.errorCode);
     },
 
+    'test not different adjacent colors': function() {
+        this.model.colors = "red\ngreen\ngreen";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("C03", validatedModel.errorCode);
+    },
+
     'test refresh time below 50': function() {
         this.model.refreshTime = "2001";
         var validatedModel = this.presenter.validateModel(this.model);
