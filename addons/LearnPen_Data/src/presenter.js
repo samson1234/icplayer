@@ -24,14 +24,6 @@ function AddonLearn_Pen_Data_create() {
         return result;
     }
 
-    function getBorderRadius(radius) {
-        return {
-            "-webkit-border-radius": radius,
-            "-moz-border-radius": radius,
-            "border-radius": radius
-        };
-    }
-
     var presenter = function() {};
 
     presenter.data = {
@@ -219,31 +211,74 @@ function AddonLearn_Pen_Data_create() {
         return getCorrectObject(time);
     }
 
+    function createIcon(margin, iconSize) {
+        function getBorderRadius(radius) {
+            radius += 'px';
+            return {
+                "-webkit-border-radius": radius,
+                "-moz-border-radius": radius,
+                "border-radius": radius
+            };
+        }
+
+        var $icon = presenter.$view.find('.icon');
+
+        $icon.css(getBorderRadius(iconSize));
+
+        $icon.css({
+            "width": iconSize + "px",
+            "height": iconSize + "px",
+
+            "background-image": 'url(' + presenter.configuration.icon + ')',
+            "background-repeat": "no-repeat",
+            "background-size": "100% 100%",
+
+            "margin": margin + "px",
+            "border": "5px solid white"
+//            "top": "-3px"
+        });
+    }
+
+    function createSteps(margin, iconSize) {
+        var $pie = presenter.$view.find('.icon');
+        var $big = $pie.filter('.big');
+
+        $pie.css({
+            'position': 'absolute',
+            'width': '200px',
+            height: 400px;
+            overflow: hidden;
+            left: 200px;
+            -moz-transform-origin: left center;
+            -ms-transform-origin: left center;
+            -o-transform-origin: left center;
+            -webkit-transform-origin: left center;
+            transform-origin: left center;
+        });
+
+        $big.css({
+            width: 400px;
+            height: 400px;
+            left: 0;
+            -moz-transform-origin: center center;
+            -ms-transform-origin: center center;
+            -o-transform-origin: center center;
+            -webkit-transform-origin: center center;
+            transform-origin: center center;
+        });
+
+
+
+        //presenter.configuration.colors;
+    }
+
     function createGraph() {
         var MARGIN = parseInt(presenter.configuration.contentSize / 10, 10); // 10% of total size
         var ICON_SIZE = presenter.configuration.contentSize - (2 * MARGIN);
 
-        var $icon = presenter.$view.find('.icon');
+        createIcon(MARGIN, ICON_SIZE);
 
-        $icon.css({
-            "width": ICON_SIZE + "px",
-            "height": ICON_SIZE + "px"
-        });
-
-        $icon.css(getBorderRadius(ICON_SIZE  + "px"));
-
-        $icon.css({
-            "background-image": 'url(' + presenter.configuration.icon + ')',
-            "background-repeat": "no-repeat",
-            "background-size": "100% 100%"
-        });
-
-        $icon.css("margin", MARGIN + "px");
-
-        $icon.css({
-            "border": "5px solid white",
-            "top": "-3px"
-        });
+        createSteps(MARGIN, ICON_SIZE);
     }
 
     presenter.validateModel = function(model) {
@@ -259,6 +294,9 @@ function AddonLearn_Pen_Data_create() {
         var validatedTime = validateTime(model.refreshTime);
         if (!validatedTime.isValid) return getErrorObject(validatedTime.errorCode);
 
+        var width = parseInt(model.Width, 10);
+        var height = parseInt(model.Height, 10);
+
         return {
             isDisable: ModelValidationUtils.validateBoolean(model.isDisable),
             sensor: ModelValidationUtils.validateOption(presenter.MODE, model.sensor),
@@ -266,9 +304,9 @@ function AddonLearn_Pen_Data_create() {
             backgroundColor: validatedBGColor.value,
             colors: validatedColors.value,
             refreshTime: validatedTime.value,
-            contentSize: Math.min(model.width, model.height),
+            contentSize: Math.min(width, height),
 
-            id: model["ID"],
+            id: model.ID,
             isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             isValid: true
         };

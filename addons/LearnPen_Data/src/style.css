@@ -2,14 +2,14 @@
     position: relative;
     width: 100%;
     height: 100%;
-
-    cursor: no-drop; /*not-allowed;*/
 }
 
 .steps, .icon {
     position: absolute;
     width: 100%;
     height: 100%;
+
+    cursor: no-drop; /*not-allowed;*/
 }
 
 .pie {
@@ -93,49 +93,48 @@
     -ms-transform: rotate(180deg);
     -webkit-transform: rotate(180deg);
     -o-transform: rotate(180deg);
-    transform:rotate(180deg);
+    transform: rotate(180deg);
 }
 .pie[data-start="216"] {
     -moz-transform: rotate(216deg);
     -ms-transform: rotate(216deg);
     -webkit-transform: rotate(216deg);
     -o-transform: rotate(216deg);
-    transform:rotate(216deg);
+    transform: rotate(216deg);
 }
 .pie[data-start="252"] {
     -moz-transform: rotate(252deg);
     -ms-transform: rotate(252deg);
     -webkit-transform: rotate(252deg);
     -o-transform: rotate(252deg);
-    transform:rotate(252deg);
+    transform: rotate(252deg);
 }
 .pie[data-start="288"] {
     -moz-transform: rotate(288deg);
     -ms-transform: rotate(288deg);
     -webkit-transform: rotate(288deg);
     -o-transform: rotate(288deg);
-    transform:rotate(288deg);
+    transform: rotate(288deg);
 }
 .pie[data-start="324"] {
     -moz-transform: rotate(324deg);
     -ms-transform: rotate(324deg);
     -webkit-transform: rotate(324deg);
     -o-transform: rotate(324deg);
-    transform:rotate(324deg);
+    transform: rotate(324deg);
 }
-
 
 .pie[data-value="36"]:BEFORE {
     -moz-transform: rotate(36deg);
     -ms-transform: rotate(36deg);
     -webkit-transform: rotate(36deg);
     -o-transform: rotate(36deg);
-    transform:rotate(36deg);
+    transform: rotate(36deg);
 }
 .pie[data-value="180"]:BEFORE {
     -moz-transform: rotate(180deg);
     -ms-transform: rotate(180deg);
     -webkit-transform: rotate(180deg);
     -o-transform: rotate(180deg);
-    transform:rotate(180deg);
+    transform: rotate(180deg);
 }
