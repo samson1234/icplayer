@@ -240,34 +240,109 @@ function AddonLearn_Pen_Data_create() {
     }
 
     function createSteps(margin, iconSize) {
-        var $pie = presenter.$view.find('.icon');
+        var $pie = presenter.$view.find('.pie');
         var $big = $pie.filter('.big');
+
+        var size = {
+            full: iconSize + 'px',
+            half: Math.round(iconSize / 2) + 'px'
+        };
 
         $pie.css({
             'position': 'absolute',
-            'width': '200px',
-            height: 400px;
-            overflow: hidden;
-            left: 200px;
-            -moz-transform-origin: left center;
-            -ms-transform-origin: left center;
-            -o-transform-origin: left center;
-            -webkit-transform-origin: left center;
-            transform-origin: left center;
+            'width': size.half,
+            'height': size.full,
+            'overflow': 'hidden',
+            'left': size.half,
+            '-moz-transform-origin': 'left center',
+            '-ms-transform-origin': 'left center',
+            '-o-transform-origin': 'left center',
+            '-webkit-transform-origin': 'left center',
+            'transform-origin': 'left center'
         });
 
         $big.css({
-            width: 400px;
-            height: 400px;
-            left: 0;
-            -moz-transform-origin: center center;
-            -ms-transform-origin: center center;
-            -o-transform-origin: center center;
-            -webkit-transform-origin: center center;
-            transform-origin: center center;
+            'width': size.full,
+            'height': size.full,
+            'left': '0',
+            '-moz-transform-origin': 'center center',
+            '-ms-transform-origin': 'center center',
+            '-o-transform-origin': 'center center',
+            '-webkit-transform-origin': 'center center',
+            'transform-origin': 'center center'
         });
 
+        $pie.find(':BEFORE').css({
+            'content': "",
+            'position': 'absolute',
+            'width': size.half,
+            'height': size.half,
+            'left': -size.half,
+            'border-radius': size.half + ' 0 0 ' + size.half,
+            '-moz-transform-origin': 'right center',
+            '-ms-transform-origin': 'right center',
+            '-o-transform-origin': 'right center',
+            '-webkit-transform-origin': 'right center',
+            'transform-origin': 'right center'
+        });
 
+        $big.find(':BEFORE').css({
+            'left': '0'
+        });
+
+        $big.find(':AFTER').css({
+            'content': "",
+            'position': 'absolute',
+            'width': size.half,
+            'height': size.full,
+            'left': size.half,
+            'border-radius': '0 [HALF] [HALF] 0'.replace(/\[HALF\]/g, size.half)
+        });
+
+        console.log(presenter.$view.find('.pie:nth-of-type(1):BEFORE, .pie:nth-of-type(1):AFTER')[0]);
+
+        presenter.$view.find('.pie:nth-of-type(1):BEFORE, .pie:nth-of-type(1):AFTER').css({
+            'background-color': 'white'
+        });
+
+        presenter.$view.find('.pie:nth-of-type(2):BEFORE, .pie:nth-of-type(2):AFTER').css({
+            'background-color': 'green'
+        });
+
+        presenter.$view.find('.pie:nth-of-type(3):BEFORE, .pie:nth-of-type(3):AFTER').css({
+            'background-color': 'red'
+        });
+
+        presenter.$view.find('.pie:nth-of-type(4):BEFORE, .pie:nth-of-type(4):AFTER').css({
+            'background-color': 'blue'
+        });
+
+        presenter.$view.find('.pie:nth-of-type(5):BEFORE, .pie:nth-of-type(5):AFTER').css({
+            'background-color': 'yellow'
+        });
+
+        presenter.$view.find('.pie:nth-of-type(6):BEFORE, .pie:nth-of-type(6):AFTER').css({
+            'background-color': 'pink'
+        });
+
+        function getTransformCSS(val) {
+            return {
+                '-webkit-transform': 'rotate(' + val + 'deg)',
+                '-moz-transform': 'rotate(' + val + 'deg)',
+                '-ms-transform': 'rotate(' + val + 'deg)',
+                '-o-transform': 'rotate(' + val + 'deg)',
+                'transform': 'rotate(' + val + 'deg)'
+            }
+        }
+
+        presenter.$view.find('.pie[data-start="180"]').css(getTransformCSS(180));
+        presenter.$view.find('.pie[data-start="216"]').css(getTransformCSS(216));
+        presenter.$view.find('.pie[data-start="252"]').css(getTransformCSS(252));
+        presenter.$view.find('.pie[data-start="288"]').css(getTransformCSS(288));
+        presenter.$view.find('.pie[data-start="324"]').css(getTransformCSS(324));
+
+        presenter.$view.find('.pie[data-value="36"]:BEFORE').css(getTransformCSS(36));
+        presenter.$view.find('.pie[data-value="180"]:BEFORE').css(getTransformCSS(180));
 
         //presenter.configuration.colors;
     }
