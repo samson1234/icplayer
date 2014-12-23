@@ -16,32 +16,32 @@ function AddonMultiAudio_create(){
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
     };
+    
+    presenter.onEventReceived = function(eventName, eventData) {
+    	if(eventData.value == 'dropdownClicked') {
+     	   	this.audio.load();
+    	}
+    }
 
-    presenter.createEventData = function (data) {
-        return {
+    function getEventObject(_item, _value, _score) {
+    	return {
             source : presenter.addonID,
-            item : data.currentItem,
-            value : '' + data.currentTime,
-            score : ''
+            item : _item + '',
+            value : _value + '',
+            score : _score + ''
         };
+    }
+    
+    presenter.createEventData = function (data) {
+    	return getEventObject(data.currentItem, data.currentTime, '');
     };
 
     presenter.createOnEndEventData = function (data) {
-        return {
-            source : presenter.addonID,
-            item : data.currentItem,
-            value : 'end',
-            score : ''
-        };
+        return getEventObject(data.currentItem, 'end', '');
     };
     
     presenter.createOnPlayingEventData = function (data) {
-        return {
-            source : presenter.addonID,
-            item : data.currentItem,
-            value : 'playing',
-            score : ''
-        };
+        return getEventObject(data.currentItem, 'playing', '');
     };
     
     presenter.sendEventAndSetCurrentTimeAlreadySent = function (eventData, currentTime) {
@@ -54,6 +54,23 @@ function AddonMultiAudio_create(){
     };
 
     presenter.onTimeUpdateSendEventCallback = function() {
+
+        var ua = navigator.userAgent;
+        if( ua.indexOf("Android") >= 0 )
+        {
+            var androidversion = parseFloat(ua.slice(ua.indexOf("Android")+8));
+            if (androidversion == 4.4)
+            {
+                var duration = parseInt(presenter.audio.duration, 10);
+                duration = isNaN(duration) ? 0 : duration;
+                var currentTime2 = parseInt(presenter.audio.currentTime, 10);
+
+                if(duration == currentTime2){
+                    presenter.sendOnEndEvent();
+                }
+            }
+        }
+
         var currentTime = presenter.formatTime(presenter.getAudioCurrentTime());
         var currentItem = presenter.currentAudio+1;
         if (currentTime !== currentTimeAlreadySent) { // to prevent duplicated value
@@ -88,19 +105,29 @@ function AddonMultiAudio_create(){
         var eventData = presenter.createOnPlayingEventData({'currentItem': currentItem});
         eventBus.sendEvent('ValueChanged', eventData);
     };
-    
+
     presenter.createView = function(view, model){
         var interfaceType = model["Interface"];
         var audioWrapper = this.prepareAudio();
         this.audio.addEventListener('timeupdate', presenter.onTimeUpdateSendEventCallback, false);
         this.audio.addEventListener('playing', presenter.sendOnPlayingEvent, false);
-        this.audio.addEventListener('ended', function() {
-                presenter.sendOnEndEvent();
-                presenter.stop();
-        }, false);
         this.audio.addEventListener('click', function(e) {
             e.stopPropagation();
         }, false);
+        this.audio.addEventListener('ended', function() {
+            presenter.stop();
+            presenter.sendOnEndEvent();
+        }, false);
+
+        if (!presenter.isLoaded) {
+            this.audio.addEventListener("loadeddata", function() {
+                presenter.isLoaded = true;
+
+                if (!presenter.commandsQueue.isQueueEmpty()) {
+                    presenter.commandsQueue.executeAllTasks();
+                }
+            });
+        }
 
         switch(interfaceType) {
             case "Default controls":
@@ -177,13 +204,18 @@ function AddonMultiAudio_create(){
         } else {
             $(audio).append("Your browser doesn't support audio.");
         }
+
         audio.load();
+
     };
 
     presenter.run = function(view, model){
+        presenter.commandsQueue = CommandsQueueFactory.create(presenter);
+
         this.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
         presenter.addonID = model.ID;
+        eventBus.addEventListener('ValueChanged', this);
     };
 
     presenter.createPreview = function(view, model){
@@ -221,12 +253,22 @@ function AddonMultiAudio_create(){
     };
 
     presenter.play = function() {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('play', []);
+            return;
+        }
+
         if (!this.audio.playing) {
             this.audio.play();
         }
     };
 
     presenter.stop = function() {
+        if (!presenter.isLoaded) {
+            presenter.commandsQueue.addTask('stop', []);
+            return;
+        }
+
         if (!presenter.audio.paused) {
             presenter.audio.pause();
             presenter.audio.currentTime = 0;
@@ -252,7 +294,7 @@ function AddonMultiAudio_create(){
     function audioStarted(audio) {
         return audio.currentTime > 0;
     }
-
+    
     presenter.reset = function() {
         this.visible = this.defaultVisibility;
         if (this.visible) {
@@ -268,7 +310,8 @@ function AddonMultiAudio_create(){
         var newAudio = parseInt(audioNumber, 10) - 1;
         if (0 <= newAudio && newAudio < this.files.length) {
             this.currentAudio = newAudio;
-            this.initialize(this.globalView, this.globalModel);
+            presenter.isLoaded = false;
+            presenter.loadFiles(this.audio, this.globalModel);
         }
     };
 
