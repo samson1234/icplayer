@@ -1,7 +1,6 @@
 function AddonLearn_Pen_Data_create() {
 
     function getErrorObject(ec) { return { isValid: false, errorCode: ec }; }
-
     function getCorrectObject(val) { return { isValid: true, value: val }; }
 
     function getCurrentTime() {
@@ -31,9 +30,9 @@ function AddonLearn_Pen_Data_create() {
     };
 
     presenter.hexToRGBA = function(hex, opacity) {
-        var r = parseInt(hex.substring(1,3), 16),
-            g = parseInt(hex.substring(3,5), 16),
-            b = parseInt(hex.substring(5,7), 16);
+        var r = parseInt(hex.substring(1, 3), 16),
+            g = parseInt(hex.substring(3, 5), 16),
+            b = parseInt(hex.substring(5, 7), 16);
 
         return 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
     };
@@ -149,8 +148,9 @@ function AddonLearn_Pen_Data_create() {
 
         color = validateColor(color);
 
-        if (!color)
+        if (!color) {
             return getErrorObject('BGC01');
+        }
 
         return getCorrectObject(color);
     }
@@ -234,18 +234,18 @@ function AddonLearn_Pen_Data_create() {
             "background-size": "100% 100%",
 
             "margin": margin + "px",
-            "border": "5px solid white"
-//            "top": "-3px"
+            "border": "5px solid white", // TODO kolor musi być taki sam jak tło
+            "top": "-3px" // TODO trzeba będzie odpowiednio obliczać wartość
         });
     }
 
-    function createSteps(margin, iconSize) {
+    function createSteps(margin, contentSize) {
         var $pie = presenter.$view.find('.pie');
         var $big = $pie.filter('.big');
 
         var size = {
-            full: iconSize + 'px',
-            half: Math.round(iconSize / 2) + 'px'
+            full: contentSize + 'px',
+            half: Math.round(contentSize / 2) + 'px'
         };
 
         $pie.css({
@@ -254,10 +254,10 @@ function AddonLearn_Pen_Data_create() {
             'height': size.full,
             'overflow': 'hidden',
             'left': size.half,
+            '-webkit-transform-origin': 'left center',
             '-moz-transform-origin': 'left center',
             '-ms-transform-origin': 'left center',
             '-o-transform-origin': 'left center',
-            '-webkit-transform-origin': 'left center',
             'transform-origin': 'left center'
         });
 
@@ -265,10 +265,10 @@ function AddonLearn_Pen_Data_create() {
             'width': size.full,
             'height': size.full,
             'left': '0',
+            '-webkit-transform-origin': 'center center',
             '-moz-transform-origin': 'center center',
             '-ms-transform-origin': 'center center',
             '-o-transform-origin': 'center center',
-            '-webkit-transform-origin': 'center center',
             'transform-origin': 'center center'
         });
 
@@ -279,16 +279,16 @@ function AddonLearn_Pen_Data_create() {
             'height': size.half,
             'left': -size.half,
             'border-radius': size.half + ' 0 0 ' + size.half,
+            '-webkit-transform-origin': 'right center',
             '-moz-transform-origin': 'right center',
             '-ms-transform-origin': 'right center',
             '-o-transform-origin': 'right center',
-            '-webkit-transform-origin': 'right center',
             'transform-origin': 'right center'
         });
 
-        $big.find(':BEFORE').css({
-            'left': '0'
-        });
+//        $big.find(':BEFORE').css({
+//            'left': '0'
+//        });
 
         $big.find(':AFTER').css({
             'content': "",
@@ -299,31 +299,29 @@ function AddonLearn_Pen_Data_create() {
             'border-radius': '0 [HALF] [HALF] 0'.replace(/\[HALF\]/g, size.half)
         });
 
-        console.log(presenter.$view.find('.pie:nth-of-type(1):BEFORE, .pie:nth-of-type(1):AFTER')[0]);
-
-        presenter.$view.find('.pie:nth-of-type(1):BEFORE, .pie:nth-of-type(1):AFTER').css({
-            'background-color': 'white'
-        });
-
-        presenter.$view.find('.pie:nth-of-type(2):BEFORE, .pie:nth-of-type(2):AFTER').css({
-            'background-color': 'green'
-        });
-
-        presenter.$view.find('.pie:nth-of-type(3):BEFORE, .pie:nth-of-type(3):AFTER').css({
-            'background-color': 'red'
-        });
-
-        presenter.$view.find('.pie:nth-of-type(4):BEFORE, .pie:nth-of-type(4):AFTER').css({
-            'background-color': 'blue'
-        });
-
-        presenter.$view.find('.pie:nth-of-type(5):BEFORE, .pie:nth-of-type(5):AFTER').css({
-            'background-color': 'yellow'
-        });
-
-        presenter.$view.find('.pie:nth-of-type(6):BEFORE, .pie:nth-of-type(6):AFTER').css({
-            'background-color': 'pink'
-        });
+//        presenter.$view.find('.pie:nth-of-type(1):BEFORE, .pie:nth-of-type(1):AFTER').css({
+//            'background-color': 'white'
+//        });
+//
+//        presenter.$view.find('.pie:nth-of-type(2):BEFORE, .pie:nth-of-type(2):AFTER').css({
+//            'background-color': 'green'
+//        });
+//
+//        presenter.$view.find('.pie:nth-of-type(3):BEFORE, .pie:nth-of-type(3):AFTER').css({
+//            'background-color': 'red'
+//        });
+//
+//        presenter.$view.find('.pie:nth-of-type(4):BEFORE, .pie:nth-of-type(4):AFTER').css({
+//            'background-color': 'blue'
+//        });
+//
+//        presenter.$view.find('.pie:nth-of-type(5):BEFORE, .pie:nth-of-type(5):AFTER').css({
+//            'background-color': 'yellow'
+//        });
+//
+//        presenter.$view.find('.pie:nth-of-type(6):BEFORE, .pie:nth-of-type(6):AFTER').css({
+//            'background-color': 'pink'
+//        });
 
         function getTransformCSS(val) {
             return {
@@ -341,19 +339,18 @@ function AddonLearn_Pen_Data_create() {
         presenter.$view.find('.pie[data-start="288"]').css(getTransformCSS(288));
         presenter.$view.find('.pie[data-start="324"]').css(getTransformCSS(324));
 
-        presenter.$view.find('.pie[data-value="36"]:BEFORE').css(getTransformCSS(36));
-        presenter.$view.find('.pie[data-value="180"]:BEFORE').css(getTransformCSS(180));
-
-        //presenter.configuration.colors;
+//        presenter.$view.find('.pie[data-value="36"]:BEFORE').css(getTransformCSS(36));
+//        presenter.$view.find('.pie[data-value="180"]:BEFORE').css(getTransformCSS(180));
     }
 
     function createGraph() {
-        var MARGIN = parseInt(presenter.configuration.contentSize / 10, 10); // 10% of total size
-        var ICON_SIZE = presenter.configuration.contentSize - (2 * MARGIN);
+        var contentSize = parseInt(presenter.configuration.contentSize, 10)
+        var margin = Math.round(contentSize / 10); // 10% of total size
+        var iconSize = contentSize - (2 * margin);
 
-        createIcon(MARGIN, ICON_SIZE);
+        createIcon(margin, iconSize);
 
-        createSteps(MARGIN, ICON_SIZE);
+        createSteps(margin, contentSize);
     }
 
     presenter.validateModel = function(model) {
@@ -439,3 +436,35 @@ function AddonLearn_Pen_Data_create() {
 
     return presenter;
 }
+
+(function ($) {
+
+    window.addRule = function (selector, styles, sheet) {
+
+        styles = (function (styles) {
+            if (typeof styles === "string") return styles;
+            var clone = "";
+            for (var prop in styles) {
+                if (styles.hasOwnProperty(prop)) {
+                    var val = styles[prop];
+                    prop = prop.replace(/([A-Z])/g, "-$1").toLowerCase(); // convert to dash-case
+                    clone += prop + ":" + (prop === "content" ? '"' + val + '"' : val) + "; ";
+                }
+            }
+            return clone;
+        }(styles));
+        sheet = sheet || document.styleSheets[document.styleSheets.length - 1];
+
+        if (sheet.insertRule) sheet.insertRule(selector + " {" + styles + "}", sheet.cssRules.length);
+        else if (sheet.addRule) sheet.addRule(selector, styles);
+
+        return this;
+
+    };
+
+    if ($) $.fn.addRule = function (styles, sheet) {
+        addRule(this.selector, styles, sheet);
+        return this;
+    };
+
+}(this.jQuery || this.Zepto));

@@ -11,3 +11,74 @@
 
     cursor: no-drop; /*not-allowed;*/
 }
+
+/* TODO to .js */
+.pie:BEFORE {
+    content: "";
+    position: absolute;
+    width: 200px;
+    height: 400px;
+    left: -200px;
+    border-radius: 200px 0 0 200px;
+    -webkit-transform-origin: right center;
+    -moz-transform-origin: right center;
+    -ms-transform-origin: right center;
+    -o-transform-origin: right center;
+    transform-origin: right center;
+}
+
+.pie.big:BEFORE {
+    left: 0;
+}
+
+/* TODO to .js */
+.pie.big:AFTER {
+    content: "";
+    position:absolute;
+    width: 200px;
+    height: 400px;
+    left: 200px;
+    border-radius: 0 200px 200px 0;
+}
+
+/* TODO to .js */
+.pie:nth-of-type(1):BEFORE,
+.pie:nth-of-type(1):AFTER {
+    background-color: white;
+}
+.pie:nth-of-type(2):AFTER,
+.pie:nth-of-type(2):BEFORE {
+    background-color: green;
+}
+.pie:nth-of-type(3):AFTER,
+.pie:nth-of-type(3):BEFORE {
+    background-color: red;
+}
+.pie:nth-of-type(4):AFTER,
+.pie:nth-of-type(4):BEFORE {
+    background-color: blue;
+}
+.pie:nth-of-type(5):AFTER,
+.pie:nth-of-type(5):BEFORE {
+    background-color: yellow;
+}
+.pie:nth-of-type(6):AFTER,
+.pie:nth-of-type(6):BEFORE {
+    background-color: pink;
+}
+
+.pie[data-value="36"]:BEFORE {
+    -webkit-transform: rotate(36deg);
+    -moz-transform: rotate(36deg);
+    -ms-transform: rotate(36deg);
+    -o-transform: rotate(36deg);
+    transform:rotate(36deg);
+}
+
+.pie[data-value="180"]:BEFORE {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    transform:rotate(180deg);
+}
