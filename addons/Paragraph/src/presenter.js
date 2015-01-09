@@ -47,8 +47,8 @@ function AddonParagraph_create() {
         }
         var allowedButtons = 'newdocument bold italic underline strikethrough alignleft aligncenter '+
                              'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
-                             'cut copy paste bullist numlist outdent indent blockquote undo redo '+
-                             'removeformat subscript superscript'.split(' ');
+                             'bullist numlist outdent indent blockquote undo redo '+
+                             'removeformat subscript superscript forecolor backcolor |'.split(' ');
         controls = controls.split(' ');
         return controls.filter(function(param){
             return allowedButtons.indexOf(param) != -1
@@ -114,7 +114,13 @@ function AddonParagraph_create() {
 
         presenter.configuration = presenter.parseModel(model);
 
+        var plugins = undefined;
+        if (presenter.configuration.toolbar.indexOf('forecolor') > -1 ||
+            presenter.configuration.toolbar.indexOf('backcolor') > -1 ) {
+            plugins = "textcolor";
+        }
         tinymce.init({
+            plugins: plugins,
             selector : selector,
             width: model['Width'],
             height: presenter.configuration.textAreaHeight,
@@ -128,6 +134,7 @@ function AddonParagraph_create() {
             }
         });
 
+        isVisible = presenter.configuration.isVisible;
         presenter.setVisibility(presenter.configuration.isVisible);
     };
 
@@ -153,6 +160,17 @@ function AddonParagraph_create() {
             }
     };
 
+    presenter.setIframeHeight = function(){
+        var $editor = presenter.$view.find('#' + editorID + '_ifr'),
+            editorHeight = presenter.$view.height();
+
+        if (!presenter.configuration.isToolbarHidden) {
+            editorHeight -=  presenter.$view.find('.mce-toolbar').height();
+        }
+
+        $editor.height(editorHeight);
+    };
+
     presenter.onInit = function() {
         editorID = tinymce.activeEditor.id;
         editorDOM = tinymce.activeEditor.dom;
@@ -170,11 +188,15 @@ function AddonParagraph_create() {
         tinyMCE.activeEditor.dom.loadCSS(stylesheetFullPath);
 
         presenter.setStyles();
-        
+
         if (presenter.configuration.state !== undefined) {
         	tinymce.get(editorID).setContent(presenter.configuration.state, {format : 'raw'});
         }
-        $('#' + editorID + '_ifr').height(presenter.configuration.textAreaHeight);
+
+        presenter.setIframeHeight();
+
+        presenter.$view.find('.mce-toolbar').on('resize', presenter.setIframeHeight);
+
         presenter.$view.find('.mce-container.mce-panel.mce-tinymce').css('border',0);
     };
 
@@ -187,23 +209,38 @@ function AddonParagraph_create() {
     };
 
     presenter.getState = function() {
+        var tinymceState;
         if (tinymce.get(editorID) != undefined && tinymce.get(editorID).hasOwnProperty("id")) {
-            return tinymce.get(editorID).getContent({format : 'raw'});
+            tinymceState = tinymce.get(editorID).getContent({format : 'raw'});
         } else {
-            return '';
+            tinymceState = '';
         }
+
+        return JSON.stringify({
+            'tinymceState' : tinymceState,
+            'isVisible' : isVisible
+        });
     };
 
     presenter.setState = function(state) {
+        var parsedState = JSON.parse(state),
+            tinymceState = parsedState.tinymceState,
+            isVisibleState = parsedState.isVisible;
+
     	if (editorID !== undefined) {
-    		tinymce.get(editorID).setContent(state, {format : 'raw'});
+    		tinymce.get(editorID).setContent(tinymceState, {format : 'raw'});
     	} else {
-    		presenter.configuration.state = state;
+    		presenter.configuration.state = tinymceState;
     	}
+
+        isVisible = isVisibleState;
+        presenter.setVisibility(isVisible);
     };
 
     presenter.reset = function() {
         tinymce.get(editorID).setContent('');
+        presenter.setVisibility(presenter.configuration.isVisible);
+        isVisible = presenter.configuration.isVisible;
     };
 
     presenter.show = function() {

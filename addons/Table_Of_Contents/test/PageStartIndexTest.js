@@ -1,7 +1,7 @@
-TestCase("Display Page Pagination", {
+TestCase("[Table Of Contents] Display Page Pagination", {
     setUp: function () {
         this.presenter = AddonTable_Of_Contents_create();
-                this.presenter.pagination = {
+        this.presenter.pagination = {
             pages: [[]],
             size: 0
         };

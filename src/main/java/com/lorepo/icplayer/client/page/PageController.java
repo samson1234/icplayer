@@ -38,24 +38,24 @@ public class PageController {
 		void setHeight(int height);
 		void removeAllModules();
 	}
-	
+
 	private IPageDisplay pageView;
 	private Page currentPage;
 	private PlayerServices playerServiceImpl;
 	private IPlayerServices playerService;
 	private IModuleFactory moduleFactory;
 	private ArrayList<IPresenter> presenters;
-	private ScriptingEngine scriptingEngine = new ScriptingEngine();
+	private final ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
-	
-	
+
+
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
 		init(playerServiceImpl);
 	}
-	
+
 	public PageController(IPlayerServices playerServices) {
 		init(playerServices);
 	}
@@ -77,6 +77,7 @@ public class PageController {
 	public void sendPageAllOkOnValueChanged(boolean sendEvent) {
 		if (sendEvent) {
 			valueChangedHandler = playerService.getEventBus().addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
+				@Override
 				public void onScoreChanged(ValueChangedEvent event) {
 					valueChanged(event);
 				}
@@ -86,9 +87,8 @@ public class PageController {
 			valueChangedHandler = null;
 		}
 	}
-	
+
 	public void setPage(Page page) {
-		
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
@@ -121,11 +121,11 @@ public class PageController {
 	}
 
 	private void initModules() {
-		
+
 		presenters.clear();
 		pageView.removeAllModules();
 		scriptingEngine.reset();
-		
+
 		for(IModuleModel module : currentPage.getModules()){
 
 			IModuleView moduleView = moduleFactory.createView(module);
@@ -162,11 +162,11 @@ public class PageController {
 		if (currentPage.getScoringType() == ScoringType.zeroOne) {
 			return Score.calculateZeroOneScore(presenters);
 		}
-		
+
 		if (currentPage.getScoringType() == ScoringType.minusErrors) {
 			return Score.calculateMinusScore(presenters);
 		}
-			
+
 		return Score.calculatePercentageScore(presenters);
 	}
 
@@ -175,7 +175,7 @@ public class PageController {
 	}
 
 	public void reset() {
-		
+
 		if(currentPage.isReportable()){
 			PageScore pageScore = playerService.getScoreService().getPageScore(currentPage.getId());
 			if(pageScore.hasScore()){
@@ -190,7 +190,7 @@ public class PageController {
 		if (currentPage == null || !currentPage.isReportable()) {
 			return null;
 		}
-		
+
 		return playerService.getScoreService().getPageScore(currentPage.getId());
 	}
 
@@ -198,17 +198,17 @@ public class PageController {
 		for (IPresenter presenter : presenters) {
 			if (presenter instanceof IStateful) {
 				IStateful statefulObj = (IStateful)presenter;
-				String key = currentPage.getId() + statefulObj.getSerialId(); 
+				String key = currentPage.getId() + statefulObj.getSerialId();
 				String moduleState = state.get(key);
 				if (moduleState != null) {
 					statefulObj.setState(moduleState);
-				}				
+				}
 			}
 		}
 	}
 
 	public HashMap<String, String> getState() {
-		
+
 		HashMap<String, String>	pageState = new HashMap<String, String>();
 		if(currentPage != null){
 			for(IPresenter presenter : presenters){
@@ -230,15 +230,15 @@ public class PageController {
 			Window.alert(e.getMessage());
 		}
 	}
-	
+
 	public IPresenter findModule(String id) {
-		
+
 		for (IPresenter presenter : presenters) {
 			if (presenter.getModel().getId().compareTo(id) == 0) {
 				return presenter;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -251,11 +251,11 @@ public class PageController {
 			playerServiceImpl.resetEventBus();
 		}
 		if (currentPage != null) {
-			currentPage.release();			
+			currentPage.release();
 			currentPage = null;
 		}
 		pageView.removeAllModules();
-		
+
 		for (IPresenter presenter : presenters) {
 			if (presenter instanceof IStateful) {
 				presenter.releaseMemory();
@@ -266,7 +266,7 @@ public class PageController {
 	public IPlayerServices getPlayerServices() {
 		return playerService;
 	}
-	
+
 	public IPlayerController getPlayerController() {
 		return playerController;
 	}

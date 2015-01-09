@@ -286,6 +286,14 @@ public class PlayerController implements IPlayerController{
 			state = pageController2.getState();
 			stateService.addState(state);
 		}
+		if(headerController != null) {
+			state = headerController.getState();
+			stateService.addState(state);
+		}
+		if(footerController != null) {
+			state = footerController.getState();
+			stateService.addState(state);
+		}
 	}
 
 

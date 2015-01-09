@@ -149,11 +149,20 @@ function AddonLayered_Image_create() {
 
         for (var i = 0; i < presenter.configuration.layers.length; i++) {
             var showLayer = isPreview ? true : presenter.configuration.layers[i].showAtStart;
-            setFlag(i, presenter.configuration.layers[i].showAtStart);
+            if(!presenter.savedState) {
+                setFlag(i, presenter.configuration.layers[i].showAtStart);
+            }
+            var imageElement = document.createElement('div');
+            $(imageElement).css('backgroundImage', 'url(' + presenter.configuration.layers[i].image + ')');
+            $(imageElement).addClass('layeredimage-image');
+            $(imageElement).attr('data-index', (i+1));
+            $(DOMElements.wrapper).append(imageElement);
 
-            appendImage(presenter.configuration.layers[i].image, showLayer);
+            if (!showLayer) {
+                $(imageElement).hide();
+            }
 
-            var layer = $(DOMElements.wrapper.find('.layeredimage-image:nth-child(' + (i + 2) + ')')[0]);
+            var layer = DOMElements.wrapper.find('div[data-index="'+ (i+1) +'"]');
             $(layer).css({
                 width: isScaledMode ? containerDimensions.horizontal + 'px' : containerWidth + 'px',
                 height: isScaledMode ? containerDimensions.vertical + 'px' : containerHeight + 'px'
@@ -164,8 +173,21 @@ function AddonLayered_Image_create() {
         }
 
         hideLoadingScreen();
-        if(presenter.savedState) {
-            $(DOMElements.$view).trigger("onLoadImagesEnd");
+
+        presenter.imageLoadedDeferred.resolve();
+
+        if(!isPreview){
+            if (!presenter.imagesAreLoaded && !presenter.savedState) {
+                executeTasks();
+            }
+        }
+    }
+
+    function executeTasks () {
+        presenter.imagesAreLoaded = true;
+
+        if (!presenter.commandsQueue.isQueueEmpty()) {
+            presenter.commandsQueue.executeAllTasks();
         }
     }
 
@@ -197,6 +219,9 @@ function AddonLayered_Image_create() {
     };
 
     function presenterLogic(view, model, preview) {
+        presenter.imageLoadedDeferred = new jQuery.Deferred();
+        presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
+
         var width = model.Width;
         var height = model.Height;
 
@@ -206,10 +231,6 @@ function AddonLayered_Image_create() {
             var loadingSrc = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "media/loading.gif");
             if (loadingSrc) $(DOMElements.loading).attr('src', loadingSrc);
         }
-
-        $(DOMElements.$view).bind("onLoadImagesEnd", function() {
-            setStateCallback();
-        });
 
         setElementsDimensions(width, height);
         $(DOMElements.baseImage).remove();
@@ -232,6 +253,8 @@ function AddonLayered_Image_create() {
     };
 
     presenter.run = function(view, model) {
+        presenter.commandsQueue = CommandsQueueFactory.create(presenter);
+        presenter.imagesAreLoaded = false;
         presenterLogic(view, model, false);
     };
 
@@ -251,22 +274,30 @@ function AddonLayered_Image_create() {
         });
     };
 
-    function setStateCallback() {
-        for (var i = 0; i < presenter.savedState.flags.length; i++) {
-            presenter.flags[i] = presenter.savedState.flags[i];
-        }
-
+    presenter.setStateCallback = function() {
         displayVisibleLayers(false);
 
-        if (presenter.savedState.isVisible) {
+        if (presenter.isVisbleSaved) {
             presenter.show();
         } else {
             presenter.hide();
         }
-    }
+
+        if (!presenter.imagesAreLoaded) {
+            executeTasks();
+        }
+    };
 
     presenter.setState = function(state) {
         this.savedState = JSON.parse(state);
+
+        presenter.isVisbleSaved = this.savedState.isVisible;
+
+        for (var i = 0; i < this.savedState.flags.length; i++) {
+            presenter.flags[i] = this.savedState.flags[i];
+        }
+
+        $.when(presenter.imageLoaded).then(presenter.setStateCallback);
     };
 
     presenter.setVisibility = function(isVisible) {
@@ -296,6 +327,7 @@ function AddonLayered_Image_create() {
     };
 
     function displayVisibleLayers(displayLayersWithShowAtStart) {
+        presenter.diplayingLayers = true;
         for (var i = 0; i < presenter.configuration.layers.length; i++) {
             var layerShouldBeDisplayed = displayLayersWithShowAtStart ? presenter.configuration.layers[i].showAtStart : presenter.flags[i];
             if(layerShouldBeDisplayed) {
@@ -304,16 +336,21 @@ function AddonLayered_Image_create() {
                 presenter.hideLayer(i + 1);
             }
         }
+        presenter.displayingLayers = false;
     }
 
     presenter.showLayer = function(index) {
         if (isNaN(index) || index < 1 || index > presenter.configuration.layers.length) {
             return;
         }
+        if (!presenter.imagesAreLoaded && !presenter.diplayingLayers) {
+            presenter.commandsQueue.addTask('showLayer', [index]);
+            return;
+        }
 
         setFlag(index - 1, true);
 
-        var layer = $(DOMElements.wrapper.find('.layeredimage-image:nth-child(' + (index + 1) + ')')[0]);
+        var layer = DOMElements.wrapper.find('div[data-index="'+ index +'"]');
         $(layer).show();
     };
 
@@ -325,10 +362,14 @@ function AddonLayered_Image_create() {
         if (isNaN(index) || index < 1 || index > presenter.configuration.layers.length) {
             return;
         }
+        if (!presenter.imagesAreLoaded && !presenter.diplayingLayers) {
+            presenter.commandsQueue.addTask('hideLayer', [index]);
+            return;
+        }
 
         setFlag(index - 1, false);
 
-        var layer = $(DOMElements.wrapper.find('.layeredimage-image:nth-child(' + (index + 1) + ')')[0]);
+        var layer = DOMElements.wrapper.find('div[data-index="'+ index +'"]');
         $(layer).hide();
     };
 
@@ -338,6 +379,10 @@ function AddonLayered_Image_create() {
 
     presenter.toggleLayer = function(index) {
         if (isNaN(index) || index < 1 || index > presenter.configuration.layers.length) {
+            return;
+        }
+        if (!presenter.imagesAreLoaded && !presenter.diplayingLayers) {
+            presenter.commandsQueue.addTask('toggleLayer', [index]);
             return;
         }
 

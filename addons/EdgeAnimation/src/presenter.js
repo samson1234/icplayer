@@ -158,7 +158,8 @@ function AddonEdgeAnimation_create(){
 		//window.AdobeEdge.preloadComplete
             window.AdobeEdge.preloadComplete[compId]=function(a){
 				presenter.loadMediaToAnimation(presenter.model);
-				AdobeEdge.$_(".edgePreload"+a).css("display","none");fnCycle=null;loadingEvt&&loadingEvt({event:"done",progress:1,reason:"complete"});aBootcompsLoaded.push(a);for(var d=window.AdobeEdge.bootstrapListeners.length,e=0;e<d;e++)try{window.AdobeEdge.bootstrapListeners[e](a)}catch(b){console.log("bootstrap error "+b)}
+                AdobeEdge.$_(".edgePreload"+a).css("display","none");
+				fnCycle=null;loadingEvt&&loadingEvt({event:"done",progress:1,reason:"complete"});aBootcompsLoaded.push(a);for(var d=window.AdobeEdge.bootstrapListeners.length,e=0;e<d;e++)try{window.AdobeEdge.bootstrapListeners[e](a)}catch(b){console.log("bootstrap error "+b)}
 				//hide loading icon
 				var loadingIconImg = presenter.$view.find('.edge-loading-image')[0];
 				$(loadingIconImg).css('display','none');
@@ -176,8 +177,10 @@ function AddonEdgeAnimation_create(){
             htFallbacks={
             };
 
+            var edgeRuntimePath = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "addons/resources/edge2.0.1.268.js");
+
             aLoader = [
-                { load: "/file/serve/5459974541017088"},
+                { load: edgeRuntimePath},
                 { load: animation.edgeFile},
                 { load: animation.edgeActionsFile}
             ];
@@ -379,7 +382,7 @@ function AddonEdgeAnimation_create(){
 		
         return JSON.stringify({
             'currentAnimationItem' : currentAnimationItem,
-            'isVisible' : presenter.isVisible,
+            'isVisible' : presenter.isVisible
         });
     };
 

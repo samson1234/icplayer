@@ -287,18 +287,17 @@ function AddonImage_Identification_create(){
     };
 
     function loadImageEndCallback() {
-        var state = JSON.parse(presenter.configuration.savedState);
-        presenter.configuration.isSelected = state.isSelected;
-        presenter.configuration.isVisible = state.isVisible;
-
-        applySelectionStyle(state.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
-        presenter.setVisibility(state.isVisible);
+        applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+        presenter.setVisibility(presenter.configuration.isVisible);
     }
 
     presenter.setState = function(stateString) {
         if (ModelValidationUtils.isStringEmpty(stateString)) return;
 
-        presenter.configuration.savedState = stateString;
+        var state = JSON.parse(stateString);
+        presenter.configuration.isSelected = state.isSelected;
+        presenter.configuration.isVisible = state.isVisible;
+
         presenter.$view.bind("onLoadImageCallbackEnd", function () {
             loadImageEndCallback();
         });
@@ -431,6 +430,10 @@ function AddonImage_Identification_create(){
     }
 
     presenter.showAnswers = function () {
+        if(!presenter.configuration.isActivity){
+            return;
+        }
+
         presenter.isShowAnswersActive = true;
 
         presenter.configuration.isErrorCheckMode = true;
@@ -446,6 +449,10 @@ function AddonImage_Identification_create(){
     };
 
     presenter.hideAnswers = function () {
+        if(!presenter.configuration.isActivity){
+            return;
+        }
+
         presenter.configuration.isErrorCheckMode = false;
 
         applySelectionStyleHideAnswers(CSS_CLASSES.SHOW_ANSWERS);

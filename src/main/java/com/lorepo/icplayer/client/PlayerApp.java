@@ -56,7 +56,7 @@ public class PlayerApp{
 		startPageIndex = pageIndex;
 		contentModel = new Content();
 		if (pagesSubset != null) contentModel.setPageSubset(pagesSubset);
-		XMLLoader	reader = new XMLLoader(contentModel);
+		XMLLoader reader = new XMLLoader(contentModel);
 		reader.load(url, new ILoadListener() {
 			public void onFinishedLoading(Object obj) {
 				initPlayer();

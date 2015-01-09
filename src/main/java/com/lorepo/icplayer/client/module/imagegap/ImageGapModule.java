@@ -46,17 +46,14 @@ public class ImageGapModule extends BasicModuleModel {
 	
 	@Override
 	public void load(Element node, String baseUrl) {
-	
 		super.load(node, baseUrl);
 		
 		loadEvents(node);
 		
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
-			
 			Node childNode = nodes.item(i);
 			if (childNode instanceof Element) {
-				
 				if (childNode.getNodeName().compareTo("gap") == 0 && childNode instanceof Element) {
 					Element gapElement = (Element)childNode;
 					answerId = XMLUtils.getAttributeAsString(gapElement, "answerId");
@@ -176,7 +173,6 @@ public class ImageGapModule extends BasicModuleModel {
 		addProperty(property);	
 	}
 
-
 	private void addPropertyEvent(final String eventName) {
 		
 		IProperty property = new IEventProperty() {
@@ -195,18 +191,33 @@ public class ImageGapModule extends BasicModuleModel {
 			
 			@Override
 			public String getName() {
-				return eventName;
+				return getEventTranslatedName(eventName);
 			}
 
 			@Override
 			public String getDisplayName() {
-				return eventName;
+				return getEventTranslatedName(eventName);
 			}
 		};
 		
 		addProperty(property);
 	}
 
+    private String getEventTranslatedName(final String eventName) {
+        String label = "image_gap_on_";
+
+        if (eventName.equals(EVENT_CORRECT)) {
+            label += "correct";
+        } else if (eventName.equals(EVENT_WRONG)) {
+            label += "wrong";
+        } else if (eventName.equals(EVENT_EMPTY)) {
+            label += "empty";
+        } else {
+            throw new IllegalArgumentException();
+        }
+
+        return DictionaryWrapper.get(label);
+    }
 
 	public String getEventCode(String eventName) {
 		return events.get(eventName);

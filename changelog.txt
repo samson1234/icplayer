@@ -1,3 +1,144 @@
+2015-01-09 Fixed Stand and Hide Area functions on mobile devices in IWB Toolbar module
+2015-01-08 Fixed notes on mobile devices in IWB Toolbar module
+2015-01-08 Added ShowAnswers to Fractions module
+2015-01-08 Added ShowAnswers to Clock module
+2015-01-07 Adapted tests to current module version in Video module
+2015-01-07 Fixed issue with removing class disable on switching to work mode in TrueFalse module
+2015-01-07 Adapted tests to current module version in Animated Lesson Progress module
+2015-01-02 Adapted tests to current module version in LearnPen Data module
+2015-01-02 Adapted tests to current module version in Custom Scoring module
+2015-01-02 Adapted tests to current module version in Image Viewer module
+2015-01-02 Adapted tests to current module version in Memo Game module
+2015-01-02 Adapted tests to current module version in Page Rating module
+2015-01-02 Adapted tests to current module version in Paragraph eKeyboard module
+2015-01-02 Adapted tests to current module version in Coloring module
+2015-01-02 Adapted tests to current module version in Paragraph module
+2015-01-02 Adapted tests to current module version in Text Selection module
+2015-01-02 Adapted tests to current module version in LearnPen module
+2015-01-02 Adapted tests to current module version in MultiAudio module
+2014-12-31 Fixed issue with visible state in Drawing module
+2014-12-30 Fixed issues with SCORM local resources in navigation bar and External Link Button module when lesson is run with external Player
+2014-12-30 Fixed issue with page preview URL pointing to SCORM local resource in navigation bar
+2014-12-30 Fixed issue with hiding whole contents of Table Of Contents
+2014-12-29 Fixed issue with URI pointing to SCORM local resource in External Link Button module
+2014-12-29 Fixed issue with checking answers in not activity mode in Connection module
+2014-12-29 Fixed issue with saving state in Slider module
+2014-12-29 Fixed issue with saving state in Layered Image module
+2014-12-29 Fixed issue with saving state in Image Viewer Button Controlled module
+2014-12-29 Fixed problem with stopwatch in IWB Toolbar module
+2014-12-29 Added new property Don't show pages to Table of Contents
+2014-12-24 Added information to pay ettention to the correct linking resources
+2014-12-22 Fixed issue with toggling bottom panels in IWB toolbar
+2014-12-19 Fixed problem with jumping to the next gap in eKeyboard module
+2014-12-18 Fixed calling commands on PageLoaded event in Layered Image module
+2014-12-18 Fixed translation of event properties in Image Gap module
+2014-12-18 Fixed problem with playing MultiAudio on iPad
+2014-12-16 Fixed issues with zooming after deactivating Zoom feature and color and thickness panels visibility in IWB Toolbar module
+2014-12-16 Fixed problem with moveToFrame command in ImageViewer addon
+2014-12-11 Fixed formatting text with bolds, italics etc. in Text Selection module
+2014-12-10 Fixed issue with changing audio on iOS and android in Multi Audio module
+2014-12-08 Fixed issue with touch/mouse coordinates, issue with zoom and more in IWB toolbar
+2014-12-03 Fixed problem with setting state in Image Viewer addon
+2014-12-02 Fixed problem with getting score from Image Identification addon
+2014-12-01 Added changes to Swiffy Animation module
+2014-12-01 Fixed adding class navigationbar-page-ok in Navigation Bar module
+2014-11-28 Fixed problem with animation in SVG format
+2014-11-27 Added Show for pen and Show for marker properties in IWB toolbar
+2014-11-27 Fixed problem with rewind to start movie in Android 4.1 in Video module
+2014-11-27 Fixed problem with view of Text identification module in editor
+2014-11-27 Fixed problem with rewind to start movie in Video module
+2014-11-27 Added setPenColor and setDefaultPenThickness commands to IWB toolbar
+2014-11-27 Fixed problem with jumpTo in Multi Audio module
+2014-11-26 Fixed problem with hiding in Video module
+2014-11-26 Fixed problem with images in Multiple gap and Image gap module
+2014-11-24 Added Vocabulary audio files properties to Text Audio
+2014-11-20 Added Fixed position property, changed displaying rulers and fixed double page view in IWB Toolbar module
+2014-11-19 Player saves state of addons in header and footer
+2014-11-18 Fixed problem with editor preview in Hierarchical Lesson Report
+2014-11-17 Fixed problem with the second advent of Popup
+2014-11-14 Fixed issue with skipping words in Text Audio
+2014-11-13 Fixed problem with play action and ended event in Video module
+2014-11-13 Added isAllOK method and allOK event in Hangman module
+2014-11-12 New Player Commands: setNavigationPanelsAutomaticAppearance, showNavigationPanels, hideNavigationPanels
+2014-11-06 Added new property "Individual fragment playback" to Text Audio module
+2014-11-05 Fixed problem with isAttempted in Math module connected with dropdown gaps
+2014-11-04 Fixed problem with saving visibility in Paragraph and Paragraph Keyboard modules
+2014-11-04 Fixed problem with getting error Can not load page: null
+2014-11-03 Added events "playing" and "stop" to Text Audio module
+2014-11-03 Fixed setting width in IWB Toolbar module
+2014-11-03 Added isAttempted method to Math module
+2014-10-30 New Addon - Paragraph eKeyboard
+2014-10-30 Fixed propagation of onclick event in Plot module
+2014-10-29 Fixed highlighting text after clicking stop or reset in Text Audio module
+2014-10-29 Fixed working IWB Toolbar module on iframe
+2014-10-24 Added Event on select rate and method getRate() in Page Rating
+2014-10-24 Added Show Answers to Pie Chart module
+2014-10-24 Added Show Answers to Points and Lines module
+2014-10-24 Added new properties: "Row classes", "Show max score field", "Show page score" and "Disable score on pages" to Hierarchical Lesson Report
+2014-10-24 Fixed displaying IWB Toolbar in editor preview
+2014-10-23 Fixed issue with pulling up collumns reduced to 0 on mobile devices in Graph module
+2014-10-23 Fixed problem with autoplaying after click on text fragment in TextAudio module
+2014-10-23 Added playing and end events to MultiAudio
+2014-10-23 Fixed issue with zoom, note and displaying elements in IWB Toolbar module
+2014-10-23 Fixed stopwatch on mLibro windows in IWB toolbar module
+2014-10-21 Fixed problem with autoplaying in MultiAudio module
+2014-10-20 Improved Spanish translations
+2014-10-17 A return full functionality mouseMoveCallback in Graph module
+2014-10-17 Fixed issue with pulling up collumn reduced to 0 in Graph module
+2014-10-16 Fixed issue with double rendered LaTeX in Choice
+2014-10-16 Added handling property Is Visible in IWB Toolbar module
+2014-10-15 Added collaboration between crossword and eKeyboard modules
+2014-10-13 Added stopwatch, clock and changed view of panel in IWB Toolbar module
+2014-10-13 Added new property: Real-time navigationbar-page-ok to Navigation Bar
+2014-10-13 Fixed issue with getting JS representation of Check Button module
+2014-10-13 Fixed showing Layered Image module on IOS 8.0.2
+2014-10-09 Fixed issue with symbols in dropdown gaps for Table module
+2014-10-09 Fixed issue with double lines in Connection module
+2014-10-09 Added new version of Swiffy Animation module and swiffy library.
+2014-10-09 Added Show Answers to Crossword module
+2014-10-08 Fixed issue with double lines in Connection module
+2014-10-06 Removed console.log from Text module
+2014-10-06 Added Show Answers to Table module
+2014-10-06 Removed unused libraries
+2014-10-06 Added Show Answers to Writing Calculations module
+2014-10-06 Added Show Answers to Basic Math Gaps module
+2014-10-03 Fixed problem with Connection in editor preview
+2014-10-03 Fixed problem with apostrophes in gaps are being worked with eKeyboard
+2014-10-01 Fixed problem with gaps being enabled regardless of initial configuration after Reset in Text module
+2014-10-01 Fixed issiue with lines on Android 4.1.2 in Connection module
+2014-10-01 Fixed issues with loading Adobe Edge Animation JavaScript Runtime in Edge Animation module
+2014-10-01 Fixed problems with configuration in Paragraph module
+2014-09-30 Fixed blocked gaps issue in response to ShowAnswers event in Text module
+2014-09-29 Added blocking on Check in Coloring module
+2014-09-29 Fixed activity in Show Answers mode in Coloring, Connection and Image Identification modules.
+2014-09-29 Fixed problem with libraries and date in IWB Toolbar module.
+2014-09-29 Fixed problem with Play button in Slideshow module after changing slides
+2014-09-29 Fixed placement of Next and Report buttons in Navigation Bar module
+2014-09-26 Fixed restoring user selection after CheckAnswers event in ShowAnswers mode in Text Selection module
+2014-09-26 Fixed handling Reset event while in ShowAnswers mode in Ordering module
+2014-09-26 Fixed double lines on Android.4.1.2 in Connection module
+2014-09-26 Fixed showing on Android 4.1.2 in Glossary module
+2014-09-25 Fixed ShowAnswers in Text module for all type of gaps
+2014-09-25 Added disable to Choice module when in ShowAnswers mode
+2014-09-24 Added toolbar separator support in Paragraph module ( | - pipe)
+2014-09-24 Removed cut, copy & paste buttons from toolbar in Paragraph module
+2014-09-24 Added new toolbar features in Paragraph module: forecolor and backcolor
+2014-09-24 Fixed hiding toolbar when toolbar buttons are in more than one line in Paragraph module
+2014-09-24 Loading content fixes in Coloring module
+2014-09-21 Added library for Edge Animation module
+2014-09-23 Added close button to Page Rating module
+2014-09-23 Fixed issue with Navigation Bar on iPad with iOS8
+2014-09-22 Fixed issue with Animation on iPads
+2014-09-22 Fixed Connection module: hiding images does not occur anymore
+2014-09-19 Fixed show answers in Text module
+2014-09-19 Added new module: Pie Chart
+2014-09-19 [IWB Toolbar] Unified date in notes, now notes appears always below panel
+2014-09-18 Fixed problem with width and height in Ordering module
+2014-09-17 Changed libraries to minified versions
+2014-09-17 Fixed problem with doubled properties in Editor
+2014-09-17 Fixed problem with loading progress circle in Editor
+2014-09-17 Fixed problem with Player not loading in iframe embeded lessons
+2014-09-16 [CheckAnswers] Fixed problem with backward compatibility checkAnswers modules
 2014-09-16 Fixed problem with setting state in Multiple Gap module
 2014-09-15 Fixed issue with loading resources on IE11 in Slideshow module
 2014-09-15 Added "Custom toolbar" property to Paragraph module

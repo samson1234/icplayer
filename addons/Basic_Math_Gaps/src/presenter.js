@@ -8,6 +8,7 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.setPlayerController = function (controller) {
         this.playerController = controller;
+        presenter.eventBus = this.playerController.getEventBus();
     };
 
     presenter.createPreview = function(view, model){
@@ -50,10 +51,15 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.run = function(view, model){
         runLogic(view, model, false);
+
+        eventBus = this.playerController.getEventBus();
+		eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     function runLogic(view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
+        
 
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage($(view).find('.basic-math-gaps-container'), presenter.errorCodes, presenter.configuration.errorCode);
@@ -137,10 +143,6 @@ function AddonBasic_Math_Gaps_create(){
         return value.replace(new RegExp(escaped, 'g'), to);
     }
 
-    function log(message) {
-        console.log(message);
-    }
-
     presenter.errorCodes = {
         'E01' : 'Left side is not equal to Right side.',
         'E02' : 'A space can NOT be a decimal separator.',
@@ -176,6 +178,9 @@ function AddonBasic_Math_Gaps_create(){
     }
 
     presenter.validateGapsDefinition = function(model, isEquation, separator) {
+    	if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         if (model['gapsDefinition'].length === 0) {
             return {
                 isError: true,
@@ -351,11 +356,16 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.setShowErrorsMode = function(){
         var inputs = presenter.$view.find('input');
+
         $.each(inputs, function() {
             $(this).attr('disabled', 'disabled');
             $(this).addClass('disabled');
         });
-
+        
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        
         if (canNOTCheckScore() || areInputsAllEmpty(inputs)
             || (presenter.configuration.isEquation
             && filterInputs(function(element) { return $(element).val().length > 0; }).length != presenter.$view.find('input').length)) {
@@ -410,10 +420,14 @@ function AddonBasic_Math_Gaps_create(){
         if (presenter.configuration.isDisabled) {
             return;
         }
+        
         var inputs = presenter.$view.find('input');
         inputs.attr('disabled', false);
         inputs.removeClass('correct wrong disabled');
         inputs.val('');
+        if(typeof(presenter.userAnswers) !== "undefined") {
+        	presenter.userAnswers.splice(0,presenter.userAnswers.length);
+        }
         presenter.$view.find('.basic-math-gaps-container').removeClass('correct wrong');
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
@@ -426,6 +440,9 @@ function AddonBasic_Math_Gaps_create(){
     }
 
     presenter.getErrorCount = function(){
+    	if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         if (canNOTCheckScore() || areInputsAllEmpty()) {
             return 0;
         }
@@ -453,6 +470,9 @@ function AddonBasic_Math_Gaps_create(){
     }
 
     presenter.getMaxScore = function(){
+    	if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         if (presenter.configuration.isEquation && presenter.configuration.isActivity) {
             return 1;
         } else if (presenter.configuration.isActivity) {
@@ -556,6 +576,9 @@ function AddonBasic_Math_Gaps_create(){
     }
 
     presenter.getScore = function(){
+    	if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         if ( canNOTCheckScore() || areInputsAllEmpty()) {
             return 0;
         }
@@ -601,6 +624,9 @@ function AddonBasic_Math_Gaps_create(){
             'isVisible' : presenter.configuration.isVisible,
             'isDisabled' : presenter.configuration.isDisabled
         };
+    	if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
         return JSON.stringify(state);
     };
 
@@ -703,5 +729,47 @@ function AddonBasic_Math_Gaps_create(){
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     }
 
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+    
+    presenter.showAnswers = function () {
+    	if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+    	if (presenter.configuration.isActivity) {
+    		presenter.setWorkMode();
+        	var inputs = presenter.$view.find('input');
+        	presenter.isShowAnswersActive = true;
+        	presenter.userAnswers = [];
+            $.each(inputs, function(i) {        
+                var shouldBeValue = presenter.configuration.gapsValues[i];
+                presenter.userAnswers.push($(this).val());
+                $(this).attr('disabled', true);
+                $(this).val(shouldBeValue);
+                $(this).addClass('bmg_show-answers');
+            });
+    	}
+    };
+    
+    presenter.hideAnswers = function () {
+    	var inputs = presenter.$view.find('input');
+        presenter.isShowAnswersActive = false;
+        
+        $.each(inputs, function(i) {
+        	if(typeof(presenter.userAnswers) !== "undefined") {
+            	$(this).val(presenter.userAnswers[i]);
+        	}
+            $(this).attr('disabled', false);
+            $(this).removeClass('bmg_show-answers');
+        });
+    };
+    
     return presenter;
 }

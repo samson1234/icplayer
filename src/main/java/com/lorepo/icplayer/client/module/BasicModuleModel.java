@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module;
 
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -13,11 +14,14 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
 
+<<<<<<< HEAD
 /**
  * Klasa implementuje bazowe functionalności potrzebne wszystkim modułom
  * 
  * @author Krzysztof Langner
  */
+=======
+>>>>>>> master
 public abstract class BasicModuleModel extends StyledModule implements IModuleModel {
 	private String moduleTypeName;
 	private String id;
@@ -25,8 +29,14 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private boolean isLocked = false;
 	private String baseURL;
 	private INameValidator nameValidator;
+<<<<<<< HEAD
 
 	protected BasicModuleModel(String typeName) {
+=======
+	private String buttonType;
+	
+	protected BasicModuleModel(String typeName){
+>>>>>>> master
 		super(typeName);
 		this.moduleTypeName = typeName;
 		id = UUID.uuid(6);
@@ -57,7 +67,10 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	
 	@Override
 	public void release() {
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
 	}
 	
 	/**
@@ -98,13 +111,30 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		NodeList nodes = element.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++){
 			Node childNode = nodes.item(i);
+			
+			if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element){
+				buttonType = StringUtils.unescapeXML(((Element) childNode).getAttribute("type"));
+				setButtonType(buttonType);
+			}
 			if(childNode.getNodeName().compareTo("layout") == 0 && childNode instanceof Element){
 				layout.load((Element) childNode);
 			}
 		}
 	}
 
+<<<<<<< HEAD
 	protected String getBaseXML() {
+=======
+	private void setButtonType(String type) {
+		this.buttonType = type;
+	}
+
+	public String getButtonType() {
+		return buttonType;
+	}
+	
+	protected String getBaseXML(){
+>>>>>>> master
 		
 		String escapedId = StringUtils.escapeXML(id);
 		String xml = "id='" + escapedId + "' left='" + getLeft() + "' top='" + getTop()  +

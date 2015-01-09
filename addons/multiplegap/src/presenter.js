@@ -217,6 +217,10 @@ function Addonmultiplegap_create(){
     };
     
     presenter.performAcceptDraggable = function(handler, item, sendEvents, force, isState) {
+        function getImageURL(elem) {
+    		return window.player.getPlayerServices().getModule(elem.item).getImageUrl();
+    	}
+    	
         if(!force && presenter.selectedItem == null) return;
         if(presenter.maximumItemCountReached()) return;
 
@@ -250,7 +254,7 @@ function Addonmultiplegap_create(){
         switch(presenter.sourceType) {
             case presenter.SOURCE_TYPES.IMAGES:
                 child = $('<img class="contents" alt="" />');
-                child.attr('src', item.value);
+                child.attr('src', getImageURL(item));
 
                 if(presenter.stretchImages) {
                     child.css({
@@ -513,7 +517,7 @@ function Addonmultiplegap_create(){
 
         presenter.clearSelected();
     };
-
+    
     presenter.getState = function() {
         var state = [];
 

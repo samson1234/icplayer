@@ -13,7 +13,7 @@ function Addongraph_create(){
 
     presenter.$view             = null;
     presenter.configuration     = {};
-
+    var minimumValueGraph;
 
 
     presenter.ERROR_MESSAGES = {
@@ -55,8 +55,7 @@ function Addongraph_create(){
         var currentValue = parseFloat(valueContainer.attr('current-value'));
         var valueElement = valueContainer.find('.graph_value_element');
 
-
-        if(currentValue > 0) {
+        if(currentValue >= 0) {
             valueElement.removeClass('graph_value_element_negative').addClass('graph_value_element_positive');
             valueContainer.css({
                 bottom: (presenter.drawingXPosition - Math.round(presenter.axisXLine.height() / 2)) + 'px',
@@ -68,13 +67,6 @@ function Addongraph_create(){
             valueElement.removeClass('graph_value_element_positive').addClass('graph_value_element_negative');
             valueContainer.css({
                 height: parseFloat(currentValue * -1 / presenter.absoluteRange) * 100 + '%',
-                top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
-                bottom: ''
-            });
-        } else {
-            valueElement.removeClass('graph_value_element_positive').removeClass('graph_value_element_negative');
-            valueContainer.css({
-                height: 0,
                 top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
                 bottom: ''
             });
@@ -672,7 +664,7 @@ function Addongraph_create(){
             $container.css('height', columnContainerHeight + 'px');
         }
 
-        if ($container.height() < 1) {
+        if ($container.height() < 1 && minimumValueGraph < 0) {
             if (isAboveXAxis($element)) {
                 $container.css({
                     top: (presenter.chartInner.height() - presenter.drawingXPosition + Math.round(presenter.axisXLine.height() / 2)) + 'px',
@@ -737,6 +729,8 @@ function Addongraph_create(){
 
         // Y-axis minimum value
         var modelYAxisMinimumValue = model['Y axis minimum value'];
+        minimumValueGraph = model['Y axis minimum value'];
+        
         if (isDecimalSeparatorSet) {
             modelYAxisMinimumValue = modelYAxisMinimumValue.replace(decimalSeparator, '.');
         }

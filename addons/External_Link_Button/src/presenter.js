@@ -12,6 +12,12 @@ function AddonExternal_Link_Button_create() {
         BOTH: 3
     };
 
+    presenter.playerController = undefined;
+
+    presenter.setPlayerController = function(controller) {
+        presenter.playerController = controller;
+    };
+
     presenter.setElementsDimensions = function (model, wrapper, element) {
         var viewDimensions = DOMOperationsUtils.getOuterDimensions(presenter.$view);
         var viewDistances = DOMOperationsUtils.calculateOuterDistances(viewDimensions);
@@ -75,6 +81,20 @@ function AddonExternal_Link_Button_create() {
     	return presenter.$view.find('.external-link-button-wrapper');
     };
 
+    presenter.isLocalResource = function (uri) {
+        var regex = new RegExp('^\.\.\/resources\/[0-9]*\.[a-zA-Z]+$');
+
+        return regex.test(uri);
+    };
+
+    presenter.fixLocalResourceURI = function () {
+        var currentPageIndex = presenter.playerController.getCurrentPageIndex(),
+            currentPage = presenter.playerController.getPresentation().getPage(currentPageIndex),
+            pageBaseURL = currentPage.getBaseURL();
+
+        presenter.configuration.URI = pageBaseURL + presenter.configuration.URI;
+    };
+
     presenter.presenterLogic = function (view, model) {
         presenter.addonID = model.ID;
         presenter.$view = $(view);
@@ -83,6 +103,10 @@ function AddonExternal_Link_Button_create() {
         if (!presenter.configuration.isValid) {
         	DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
         	return;
+        }
+
+        if (presenter.isLocalResource(presenter.configuration.URI)) {
+            presenter.fixLocalResourceURI();
         }
 
         var $wrapper = presenter.getWrapper();

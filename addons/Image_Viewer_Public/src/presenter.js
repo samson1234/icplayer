@@ -57,6 +57,12 @@ function AddonImage_Viewer_Public_create() {
 
     presenter.configuration = {};
 
+    presenter.changeFrameData = {
+        isPreview: false,
+        isReverseOrder: false,
+        triggerEvent: false
+    };
+
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeFrom_01(model);
 
@@ -549,28 +555,22 @@ function AddonImage_Viewer_Public_create() {
                 attachEventHandlers();
             }
         }
-        presenter.$view.trigger("onLoadImageCallbackEnd");
+        presenter.imageLoadedDeferred.resolve();
     }
 
     function loadImageEndCallback() {
         var configuration = presenter.configuration;
-        var state = JSON.parse(configuration.savedState);
-        configuration.currentFrame = state.currentFrame;
-        configuration.currentVisibility = state.currentVisibility;
-        configuration.showWatermark = state.showWatermark;
-        configuration.showWatermarkbyDefault = state.showWatermarkbyDefault;
-        configuration.shouldCalcScore = state.shouldCalcScore;
-        configuration.isClickDisabled = state.isClickDisabled;
-        configuration.isClickDisabledbyDefault = state.isClickDisabledbyDefault;
 
         if(!configuration.showWatermark) {
             $(watermarkElement).remove();
         }
         presenter.setVisibility(configuration.currentVisibility);
-        presenter.changeFrame(false, false, false);
+        presenter.changeFrame(presenter.changeFrameData.isPreview, presenter.changeFrameData.isReverseOrder, presenter.changeFrameData.triggerEvent);
     }
 
     function presenterLogic(view, model, preview) {
+        presenter.imageLoadedDeferred = new jQuery.Deferred();
+        presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
         presenter.addonId = model.ID;
         presenter.$view = $(view);
         presenter.model = model;
@@ -695,7 +695,14 @@ function AddonImage_Viewer_Public_create() {
         if (validatedFrame.isValid && validatedFrame.value - 1 !== currentFrame) {
             var isReverseOrder = currentFrame > validatedFrame.value - 1;
             presenter.configuration.currentFrame = validatedFrame.value - 1;
-            presenter.changeFrame(false, isReverseOrder, true);
+
+            presenter.changeFrameData = {
+                isPreview: false,
+                isReverseOrder: isReverseOrder,
+                triggerEvent: true
+            };
+
+            $.when(presenter.imageLoaded).then(loadImageEndCallback);
         }
     };
 
@@ -1374,11 +1381,18 @@ function AddonImage_Viewer_Public_create() {
         });
     };
 
-    presenter.setState = function(state) {
-        presenter.configuration.savedState = state;
-        presenter.$view.bind("onLoadImageCallbackEnd", function () {
-            loadImageEndCallback();
-        });
+    presenter.setState = function(state_string) {
+        var configuration = presenter.configuration;
+        var state = JSON.parse(state_string);
+        configuration.currentFrame = state.currentFrame;
+        configuration.currentVisibility = state.currentVisibility;
+        configuration.showWatermark = state.showWatermark;
+        configuration.showWatermarkbyDefault = state.showWatermarkbyDefault;
+        configuration.shouldCalcScore = state.shouldCalcScore;
+        configuration.isClickDisabled = state.isClickDisabled;
+        configuration.isClickDisabledbyDefault = state.isClickDisabledbyDefault;
+
+        $.when(presenter.imageLoaded).then(loadImageEndCallback);
     };
 
     presenter.reset = function() {

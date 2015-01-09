@@ -11,7 +11,6 @@ function Addonvideo_create() {
     presenter.captions = [];
     presenter.configuration = {};
     presenter.captionDivs = [];
-    presenter.isEnded = false;
 
     var height;
 
@@ -232,23 +231,12 @@ function Addonvideo_create() {
         this.video.addEventListener('loadedmetadata', function() { presenter.metadadaLoaded = true; }, false);
         this.video.addEventListener('play', function() {
             presenter.videoState = presenter.VIDEO_STATE.PLAYING;
-            presenter.isEnded = false;
         }, false);
         this.video.addEventListener('pause', function() {
             if (!presenter.isHideExecuted) {
                 presenter.videoState = presenter.VIDEO_STATE.PAUSED;
             }
             delete presenter.isHideExecuted;
-        }, false);
-        this.video.addEventListener('ended', function() {
-            if (!presenter.isEnded) {
-                presenter.sendVideoEndedEvent();
-                if (presenter.configuration.isFullScreen) {
-                    fullScreenChange();
-                }
-                presenter.isEnded = true;
-                presenter.stop();
-            }
         }, false);
     };
 
@@ -365,15 +353,21 @@ function Addonvideo_create() {
 
     function onTimeUpdate(video) {
         presenter.showCaptions(presenter.video.currentTime);
-        if (video.currentTime == video.duration) {
-            if (!presenter.isEnded) {
-                presenter.sendVideoEndedEvent();
-                if (presenter.configuration.isFullScreen) {
-                    fullScreenChange();
-                }
-                presenter.isEnded = true;
-                video.currentTime = 0;
-                video.pause();
+        
+        var currentTime = Math.floor(video.currentTime);
+        var videoDuration = Math.floor(video.duration);
+        var isFullScreen = document.mozFullScreen || document.webkitIsFullScreen;
+
+        if (currentTime == videoDuration) {
+            presenter.sendVideoEndedEvent();
+            presenter.reload();
+
+        	if(isFullScreen && document.webkitExitFullscreen) {
+        		document.webkitExitFullscreen();
+        	}
+
+            if (presenter.configuration.isFullScreen) {
+                fullScreenChange();
             }
         }
     }
@@ -481,7 +475,6 @@ function Addonvideo_create() {
                     $video.append(source);
                 }
             }
-            this.video.load();
 
             // "ended" event doesn't work on Safari
             $(this.video).unbind('timeupdate');
@@ -506,6 +499,9 @@ function Addonvideo_create() {
 
                 $(this).unbind("canplay");
             });
+            // Android devices have problem with loading content.
+            this.video.addEventListener("stalled", presenter.onStalledEventHandler, false);
+            this.video.load();
         }
     };
 
@@ -711,7 +707,22 @@ function Addonvideo_create() {
         presenter.jumpToID(params[0]);
     };
 
+    presenter.onStalledEventHandler = function () {
+    	var video = this;
+
+        if (!presenter.commandsQueue.isQueueEmpty() && video.readyState >= 2) {
+        	presenter.isVideoLoaded = true;
+            presenter.commandsQueue.executeAllTasks();
+        }
+    }
+
+    presenter.removeWaterMark = function () {
+        presenter.$view.find('.poster-wrapper').remove();
+    };
+
     presenter.play = function () {
+        presenter.removeWaterMark();
+
         if (!presenter.isVideoLoaded) {
             presenter.commandsQueue.addTask('play', []);
             return;

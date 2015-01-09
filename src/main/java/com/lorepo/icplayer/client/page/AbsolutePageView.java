@@ -16,27 +16,27 @@ import com.lorepo.icplayer.client.utils.MathJax;
 
 /**
  * This is X,Y laytout
- * 
+ *
  * @author Krzysztof Langner
  *
  */
 public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 
 	private Page currentPage;
-	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
+	private final HashMap<String, Widget> widgets = new HashMap<String, Widget>();
 
 	public AbsolutePageView() {
 		addStyleName("ic_page");
 	}
-	
+
 	@Override
 	public void setPage(Page newPage) {
-	
+
 		currentPage = newPage;
 		String styles = "position:relative;overflow:hidden;";
 		if(currentPage.getInlineStyle() != null){
-			styles += currentPage.getInlineStyle(); 
-			
+			styles += currentPage.getInlineStyle();
+
 		}
 		DOMUtils.applyInlineStyle(getElement(), styles);
 		if(!currentPage.getStyleClass().isEmpty()){
@@ -54,11 +54,11 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	@Override
 	public void addModuleView(IModuleView view, IModuleModel module) {
 		int left, right, width, top, bottom, height;
-		
+
 		if (view instanceof Widget) {
 			Widget moduleView = (Widget) view;
 			ILayoutDefinition layout = module.getLayout();
-			
+
 			if (layout.hasLeft()) {
 				left = calculatePosition(layout.getLeftRelativeTo(), layout.getLeftRelativeToProperty(), module.getLeft());
 				if (layout.hasRight()) {
@@ -72,7 +72,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 				width = module.getWidth();
 				left = right-width;
 			}
-			
+
 			if (layout.hasTop()) {
 				top = calculatePosition(layout.getTopRelativeTo(), layout.getTopRelativeToProperty(), module.getTop());
 				if (layout.hasBottom()) {
@@ -86,7 +86,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 				height = module.getHeight();
 				top = bottom-height;
 			}
-			
+
 			moduleView.setPixelSize(width, height);
 		    add(moduleView, left, top);
 		    widgets.put(module.getId(), moduleView);
@@ -98,7 +98,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		int pageHeight = DOM.getElementPropertyInt(getElement(), "clientHeight");
 		Widget widget = widgets.get(widgetName);
 		boolean isNull = widget == null;
-		
+
 		if (property == Property.left) {
 			return isNull ? modulePos : widget.getAbsoluteLeft() - getAbsoluteLeft() + modulePos;
 		} else if (property == Property.right) {
@@ -108,7 +108,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		} else if (property == Property.bottom) {
 			return isNull ? pageHeight + modulePos : widget.getAbsoluteTop() + widget.getOffsetHeight() - getAbsoluteTop() + modulePos;
 		}
-		
+
 		return 0;
 	}
 
@@ -126,6 +126,14 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	public void removeAllModules() {
 		widgets.clear();
 		clear();
+
+//		for (String key : widgets.keySet()) {
+//			Widget w = widgets.get(key);
+//			w.getElement().removeFromParent();
+//			w.removeFromParent();
+//
+//			w = null;
+//		}
 	}
 
 }

@@ -44,61 +44,66 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		public boolean isAttempted();
 		public Element getElement();
 	}
-	
-	private ImageGapModule model;
+
+	private final ImageGapModule model;
 	private IDisplay view;
-	private IPlayerServices playerServices;
+	private final IPlayerServices playerServices;
 	private DraggableItem readyToDraggableItem;
 	private DraggableItem consumedItem;
 	private JavaScriptObject jsObject;
 	private boolean isVisible;
 	private boolean isShowAnswersActive = false;
 	private String currentState = "";
-	
+
 	public ImageGapPresenter(ImageGapModule model, IPlayerServices services) {
 		this.model = model;
 		this.playerServices = services;
 		isVisible = model.isVisible();
-		
+
 		connectHandlers();
 	}
 
 	private void connectHandlers() {
-	
+
 		EventBus eventBus = playerServices.getEventBus();
-		
+
 		eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
+			@Override
 			public void onShowErrors(ShowErrorsEvent event) {
 				setShowErrorsMode();
 			}
 		});
 
 		eventBus.addHandler(WorkModeEvent.TYPE, new WorkModeEvent.Handler() {
+			@Override
 			public void onWorkMode(WorkModeEvent event) {
 				setWorkMode();
 			}
 		});
 
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
+			@Override
 			public void onResetPage(ResetPageEvent event) {
 				reset();
 			}
 		});
 
 		eventBus.addHandler(ItemSelectedEvent.TYPE, new ItemSelectedEvent.Handler() {
+			@Override
 			public void onItemSelected(ItemSelectedEvent event) {
 				if (event.getItem() instanceof DraggableImage) {
 					readyToDraggableItem = event.getItem();
 				}
 			}
 		});
-		
+
 		eventBus.addHandler(ItemConsumedEvent.TYPE, new ItemConsumedEvent.Handler() {
+			@Override
 			public void onItemConsumed(ItemConsumedEvent event) {
 				readyToDraggableItem = null;
 			}
 		});
-		
+
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
@@ -110,12 +115,12 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			}
 		});
 	}
-	
+
 	DraggableItem userReadyToDraggableItem = null;
-	
+
 	private void showAnswers() {
 		if (!model.isActivity() || this.isShowAnswersActive) { return; }
-		
+
 		this.isShowAnswersActive = true;
 		userReadyToDraggableItem = readyToDraggableItem;
 
@@ -125,12 +130,12 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		setCorrectImage();
 		view.showCorrectAnswers();
 	}
-	
+
 	private void hideAnswers() {
 		if (!model.isActivity() || !this.isShowAnswersActive) { return; }
-		
+
 		this.isShowAnswersActive = false;
-		
+
 		reset();
 		view.resetStyles();
 		view.setDisabled(false);
@@ -141,7 +146,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	private void setShowErrorsMode() {
 		if (this.isShowAnswersActive) hideAnswers();
-		
+
 		view.setDisabled(true);
 		if (model.isActivity()) {
 			if (getScore() > 0) {
@@ -162,7 +167,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		consumedItem = null;
 		view.setImageUrl("");
 		view.setDisabled(false);
-		
+
 		if (model.isVisible()) {
 			view.show();
 		} else {
@@ -175,15 +180,16 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		if (display instanceof IDisplay) {
 			view = (IDisplay) display;
 			view.addListener(new IViewListener() {
+				@Override
 				public void onClicked() {
 					viewClicked();
 				}
 			});
 		}
 	}
-	
+
 	private void viewClicked() {
-		
+
 		if (consumedItem != null) {
 			view.setImageUrl("");
 			fireItemReturnedEvent(consumedItem);
@@ -200,16 +206,16 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		}
 
 	}
-	
+
 	private void setCorrectImage() {
 		ImageSourcePresenter igp = (ImageSourcePresenter) playerServices.getModule(model.getAnswerId());
 		view.setImageUrl(igp.getImageUrl());
 	}
-	
+
 	private void fireItemReturnedEvent(DraggableItem previouslyConsumedItem) {
 		ItemReturnedEvent event = new ItemReturnedEvent(previouslyConsumedItem);
 		playerServices.getEventBus().fireEvent(event);
-		
+
 		sendEventCode(model.getEventCode(ImageGapModule.EVENT_EMPTY));
 	}
 
@@ -222,7 +228,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	private void fireItemConsumedEvent() {
 		ItemConsumedEvent event = new ItemConsumedEvent(readyToDraggableItem);
 		playerServices.getEventBus().fireEventFromSource(event, this);
-		
+
 		if (isCorrect()) {
 			sendEventCode(model.getEventCode(ImageGapModule.EVENT_CORRECT));
 		} else {
@@ -237,24 +243,29 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	@Override
 	public String getState() {
-
 		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = new HashMap<String, String>();
-		if(consumedItem != null) {
+		if (consumedItem != null) {
 			state.put("consumed",  consumedItem.toString());
 		}
 		state.put("isVisible", Boolean.toString(isVisible));
 		return json.toJSONString(state);
 	}
 
+	private String getImageURL(DraggableItem item) {
+		String moduleId = item.getId();
+		ImageSourcePresenter imageSource = (ImageSourcePresenter) this.playerServices.getModule(moduleId);
+
+		return imageSource.getImageUrl();
+	}
+
 	@Override
 	public void setState(String stateObj) {
-		
 		IJsonServices json = playerServices.getJsonServices();
 		HashMap<String, String> state = json.decodeHashMap(stateObj);
 		if (state.containsKey("consumed")) {
 			consumedItem = DraggableItem.createFromString(state.get("consumed"));
-			view.setImageUrl(consumedItem.getValue());
+			view.setImageUrl(getImageURL(consumedItem));
 		}
 		if (state.containsKey("isVisible")) {
 			if (Boolean.parseBoolean(state.get("isVisible"))) {
@@ -279,7 +290,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	public int getScore() {
 		return model.isActivity() && isCorrect() ? 1 : 0;
 	}
-	
+
 	public boolean isCorrect() {
 		if (consumedItem != null) {
 			String[] answers = model.getAnswerId().split(";");
@@ -290,10 +301,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	@Override
 	public String getName() {
 		return model.getId();
@@ -301,11 +312,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	@Override
 	public String executeCommand(String commandName, List<IType> _) {
-		
+
 		String value = "";
-		
+
 		if (commandName.compareTo("getimageid") == 0) {
-			if(consumedItem != null){
+			if (consumedItem != null) {
 				value = getImageId();
 			}
 		} else if(commandName.compareTo("show") == 0) {
@@ -319,7 +330,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		} else if(commandName.compareTo("markgapasempty") == 0) {
 			markGapAsEmpty();
 		}
-		
+
 		return value;
 	}
 
@@ -327,9 +338,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	public IModuleModel getModel() {
 		return model;
 	}
-	
-	public JavaScriptObject getAsJavaScript(){
-		
+
+	public JavaScriptObject getAsJavaScript() {
 		if (jsObject == null) {
 			jsObject = initJSObject(this);
 		}
@@ -339,14 +349,16 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	private native JavaScriptObject initJSObject(ImageGapPresenter x) /*-{
 
-		var presenter = function() {
-		}
+		var presenter = function() {};
 
 		presenter.getImageId = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getImageId()();
 		}
 		presenter.getGapValue = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getImageId()();
+		}
+		presenter.isGapAttempted = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::isGapAttempted()();
 		}
 		presenter.show = function() {
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::show()();
@@ -376,18 +388,18 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 		return presenter;
 	}-*/;
-	
+
 	private Element getView() {
 		return view.getElement();
 	}
-	
+
 	protected void show() {
 		if (view != null) {
 			view.show();
 			isVisible = true;
 		}
 	}
-	
+
 	protected void hide() {
 		if (view != null) {
 			view.hide();
@@ -398,19 +410,23 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	private String getImageId() {
 		return consumedItem == null ? "" : consumedItem.getId();
 	}
-	
+
+	private boolean isGapAttempted() {
+		return getImageId() != "";
+	}
+
 	private void markGapAsCorrect() {
 		view.showAsCorrect();
 	}
-	
+
 	private void markGapAsWrong() {
 		view.markGapAsWrong();
 	}
-	
+
 	private void markGapAsEmpty() {
 		view.markGapAsEmpty();
 	}
-	
+
 	private boolean isAttempted() {
 		return view.isAttempted();
 	}
@@ -418,7 +434,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	@Override
 	public void releaseMemory() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
