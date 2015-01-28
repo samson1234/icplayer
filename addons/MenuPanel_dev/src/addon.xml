@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<addon id='MenuPanel_dev' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="MenuItems" displayName="Menu Items" type="list">
+            <property name="id" displayName="Id" type="string" />
+            <property name="title" displayName="Title" type="string" />
+            <property name="parentId" displayName="Parent Id" type="string" />
+
+            <property name="image" displayName="Image" type="image" />
+
+            <property name="isExpanded" displayName="Is Expanded" type="boolean" />
+            <property name="isSelected" displayName="Is Selected" type="boolean" />
+            <property name="isDisabled" displayName="Is Disabled" type="boolean" />
+        </property>
+
+        <property name="HorizontalAlignment" type="{default,left,center,right}" />
+        <property name="VerticalAlignment" type="{default,top,center,bottom}" />
+        <property name="autoExpand" displayName="Auto Expand" type="boolean" />
+        <property name="Disable" type="boolean" />
+    </model>
+</addon>

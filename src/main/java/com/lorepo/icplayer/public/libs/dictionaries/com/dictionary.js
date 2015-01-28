@@ -497,5 +497,7 @@ var ice_dictionary = {
 	"eKeyboard_info": "eKeyboard is a virtual keyboard displayed right after clicking on the input/textarea the module works with.",
 	"eKeyboard_name": "eKeyboard",
 	"LearnPen_info": "LearnPen Drawing module allows users to draw images on a digital canvas using LearnPen.",
-	"LearnPen_name": "LearnPen Drawing"
+	"LearnPen_name": "LearnPen Drawing",
+	"MenuPanel_dev_info": "Allows users to create multiple double state buttons that can be organized in a hierarchical structure.",
+	"MenuPanel_dev_name": "Menu Panel"
 };
